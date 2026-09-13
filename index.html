@@ -463,6 +463,19 @@
     position: absolute;
     inset: 0;
     background-color: #1a2224;
+    z-index: 0;
+  }
+
+  .about-photo-img{
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .about-photo-img.visible{
+    display: block;
   }
 
   .about-photo-placeholder-text{
@@ -1043,6 +1056,69 @@
     gap: 0.4rem;
   }
 
+  .admin-photo-row{
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .admin-photo-preview{
+    width: 96px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(29, 158, 117, 0.35);
+    background-color: var(--bg);
+    display: none;
+    flex-shrink: 0;
+  }
+  .admin-photo-preview.has-photo{
+    display: block;
+  }
+
+  .admin-photo-actions{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .admin-file-input{
+    display: none;
+  }
+
+  .admin-btn--small{
+    padding: 9px 16px;
+    font-size: 0.82rem;
+    width: auto;
+    align-self: flex-start;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .admin-link-btn{
+    background: none;
+    border: none;
+    color: #ff8a80;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    padding: 0;
+    align-self: flex-start;
+    transition: opacity 0.2s ease;
+  }
+  .admin-link-btn:hover{
+    opacity: 0.75;
+  }
+
+  .admin-field-hint{
+    font-size: 0.75rem;
+    color: rgba(234, 234, 230, 0.45);
+    line-height: 1.5;
+  }
+
   .admin-field label{
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
@@ -1420,9 +1496,10 @@
       <!-- Photo Placeholder -->
       <div class="about-photo-wrap">
         <div class="about-photo-box">
+          <img class="about-photo-img" id="aboutPhotoImg" alt="Profile photo">
           <span class="about-photo-corner tl"></span>
           <span class="about-photo-corner br"></span>
-          <span class="about-photo-placeholder-text">Photo Coming Soon</span>
+          <span class="about-photo-placeholder-text" id="aboutPhotoPlaceholder">Photo Coming Soon</span>
         </div>
       </div>
 
@@ -1653,6 +1730,22 @@
           <input type="text" id="admAboutName" class="admin-input">
         </div>
         <div class="admin-field">
+          <label>Profile Photo</label>
+          <div class="admin-photo-row">
+            <img id="admAboutPhotoPreview" class="admin-photo-preview" alt="Photo preview">
+            <div class="admin-photo-actions">
+              <label for="admAboutPhoto" class="admin-btn admin-btn--small">Upload Photo</label>
+              <input type="file" id="admAboutPhoto" class="admin-file-input" accept="image/*">
+              <button type="button" id="admAboutPhotoClear" class="admin-link-btn hidden">Remove photo</button>
+              <p class="admin-field-hint">Upload a JPG/PNG (saved to the database automatically when you click Save Changes). You can also paste a public URL below.</p>
+            </div>
+          </div>
+        </div>
+        <div class="admin-field">
+          <label for="admAboutPhotoUrl">…or paste an image URL</label>
+          <input type="text" id="admAboutPhotoUrl" class="admin-input" placeholder="https://example.com/photo.jpg">
+        </div>
+        <div class="admin-field">
           <label for="admAboutBio">Bio</label>
           <textarea id="admAboutBio" class="admin-textarea"></textarea>
         </div>
@@ -1827,7 +1920,8 @@
       email: "hello@example.com",
       linkedin: "https://linkedin.com/in/",
       github: "https://github.com/",
-      whatsapp: ""
+      whatsapp: "",
+      photo: ""       // base64 data URL (from upload) OR a public image URL (pasted)
     },
     projects: [
       { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" },
@@ -2024,6 +2118,22 @@
       setText('aboutBio', content.about.bio);
       renderTagList('aboutTags', content.about.tags, 'about-tag');
 
+      // Profile photo — show image if set, otherwise show placeholder
+      const photoSrc = (content.about.photo || '').trim();
+      const photoImg = document.getElementById('aboutPhotoImg');
+      const photoPlaceholder = document.getElementById('aboutPhotoPlaceholder');
+      if (photoImg && photoPlaceholder) {
+        if (photoSrc) {
+          photoImg.setAttribute('src', photoSrc);
+          photoImg.classList.add('visible');
+          photoPlaceholder.style.display = 'none';
+        } else {
+          photoImg.removeAttribute('src');
+          photoImg.classList.remove('visible');
+          photoPlaceholder.style.display = '';
+        }
+      }
+
       const email = (content.about.email || '').trim();
       const linkedin = (content.about.linkedin || '').trim();
       const github = (content.about.github || '').trim();
@@ -2214,6 +2324,33 @@
     setVal('admGithub', c.about && c.about.github);
     setVal('admWhatsapp', c.about && c.about.whatsapp);
 
+    // Photo: if current photo is a data: URL we show preview + keep URL field empty;
+    // if it's a http(s) URL we put it in the URL field and preview it.
+    const existingPhoto = (c.about && c.about.photo) ? c.about.photo.trim() : '';
+    const photoPreview = document.getElementById('admAboutPhotoPreview');
+    const photoUrlInput = document.getElementById('admAboutPhotoUrl');
+    const admPhotoFile = document.getElementById('admAboutPhoto');
+    const clearBtn = document.getElementById('admAboutPhotoClear');
+    // Reset UI state
+    if (admPhotoFile) admPhotoFile.value = '';
+    window.__admPhotoData = ''; // fresh uploaded data URL (overrides URL field)
+    if (existingPhoto && /^data:image\//i.test(existingPhoto)) {
+      photoPreview.src = existingPhoto;
+      photoPreview.classList.add('has-photo');
+      photoUrlInput.value = '';
+      clearBtn.classList.remove('hidden');
+    } else if (existingPhoto && /^https?:\/\//i.test(existingPhoto)) {
+      photoPreview.src = existingPhoto;
+      photoPreview.classList.add('has-photo');
+      photoUrlInput.value = existingPhoto;
+      clearBtn.classList.remove('hidden');
+    } else {
+      photoPreview.removeAttribute('src');
+      photoPreview.classList.remove('has-photo');
+      photoUrlInput.value = '';
+      if (clearBtn) clearBtn.classList.add('hidden');
+    }
+
     // Projects
     (c.projects || []).forEach((p, idx) => {
       const i = idx + 1;
@@ -2276,7 +2413,14 @@
         email: val('admEmail').trim(),
         linkedin: val('admLinkedin').trim(),
         github: val('admGithub').trim(),
-        whatsapp: val('admWhatsapp').trim()
+        whatsapp: val('admWhatsapp').trim(),
+        // Prefer freshly uploaded data URL; otherwise fall back to pasted URL;
+        // if neither, keep the previous photo (so re-saving without changing it
+        // doesn't wipe out an already-uploaded image).
+        photo: (window.__admPhotoData && window.__admPhotoData.length)
+          ? window.__admPhotoData
+          : (val('admAboutPhotoUrl').trim()
+              || ((previous.about && previous.about.photo) ? previous.about.photo : ''))
       },
       projects: projects,
       skills: skills,
@@ -2323,6 +2467,74 @@
   }
 
   document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+
+  // ============================================================
+  // PROFILE PHOTO UPLOAD (Admin)
+  // ============================================================
+  window.__admPhotoData = ''; // holds a freshly picked data URL until save
+  const admPhotoFile   = document.getElementById('admAboutPhoto');
+  const admPhotoPrev   = document.getElementById('admAboutPhotoPreview');
+  const admPhotoUrl    = document.getElementById('admAboutPhotoUrl');
+  const admPhotoClear  = document.getElementById('admAboutPhotoClear');
+
+  function showPhotoPreview(src){
+    if (!admPhotoPrev) return;
+    if (src) {
+      admPhotoPrev.src = src;
+      admPhotoPrev.classList.add('has-photo');
+      if (admPhotoClear) admPhotoClear.classList.remove('hidden');
+    } else {
+      admPhotoPrev.removeAttribute('src');
+      admPhotoPrev.classList.remove('has-photo');
+      if (admPhotoClear) admPhotoClear.classList.add('hidden');
+    }
+  }
+
+  if (admPhotoFile){
+    admPhotoFile.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (JPG, PNG, etc.).');
+        return;
+      }
+      // Limit: warn (but allow) over ~2MB so they don't blow up Supabase.
+      if (file.size > 3 * 1024 * 1024){
+        const ok = confirm('This image is larger than 3MB. It may still work but will increase load time. Continue?');
+        if (!ok) { admPhotoFile.value=''; return; }
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        window.__admPhotoData = ev.target.result;
+        showPhotoPreview(ev.target.result);
+        // Clear URL field when a file is chosen (data URL wins)
+        if (admPhotoUrl) admPhotoUrl.value = '';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (admPhotoUrl){
+    admPhotoUrl.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url && /^https?:\/\//i.test(url)) {
+        window.__admPhotoData = '';
+        if (admPhotoFile) admPhotoFile.value = '';
+        showPhotoPreview(url);
+      } else if (!url && !window.__admPhotoData) {
+        showPhotoPreview('');
+      }
+    });
+  }
+
+  if (admPhotoClear){
+    admPhotoClear.addEventListener('click', () => {
+      window.__admPhotoData = '';
+      if (admPhotoFile) admPhotoFile.value = '';
+      if (admPhotoUrl) admPhotoUrl.value = '';
+      showPhotoPreview('');
+    });
+  }
 
   // ============================================================
   // INIT
