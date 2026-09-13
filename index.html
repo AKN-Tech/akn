@@ -1083,6 +1083,50 @@
     text-align: center;
   }
 
+  /* ===== Floating WhatsApp button ===== */
+  .floating-whatsapp{
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--teal);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 90;
+    box-shadow: 0 6px 20px rgba(29, 158, 117, 0.35);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+    text-decoration: none;
+  }
+
+  .floating-whatsapp svg{
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+  }
+
+  .floating-whatsapp:hover{
+    transform: scale(1.1);
+    box-shadow: 0 10px 28px rgba(29, 158, 117, 0.5);
+  }
+
+  @media (max-width: 480px){
+    .floating-whatsapp{
+      bottom: 18px;
+      right: 18px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .floating-whatsapp svg{
+      width: 24px;
+      height: 24px;
+    }
+  }
+
   /* ===== Responsive ===== */
   @media (max-width: 860px){
     .about-container{
@@ -1439,6 +1483,7 @@
         <a href="mailto:hello@example.com" class="btn btn-primary" id="contactEmailBtn">Email</a>
         <a href="https://linkedin.com/in/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="contactLinkedinBtn">LinkedIn</a>
         <a href="https://github.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="contactGithubBtn">GitHub</a>
+        <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="contactWhatsappBtn">WhatsApp</a>
       </div>
     </div>
   </section>
@@ -1466,6 +1511,13 @@
       <p class="footer-copyright">© 2026 AKN. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- Floating WhatsApp button (hidden by default; shown when whatsapp number exists) -->
+  <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" id="floatingWhatsapp" class="floating-whatsapp hidden" aria-label="Contact on WhatsApp">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
 
 </div>
 <!-- ==================== END SITE WRAPPER ==================== -->
@@ -1540,6 +1592,10 @@
         <div class="admin-field">
           <label for="admGithub">GitHub URL</label>
           <input type="text" id="admGithub" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="admWhatsapp">WhatsApp Number</label>
+          <input type="text" id="admWhatsapp" class="admin-input" placeholder="e.g. 923001234567 (no + or spaces)">
         </div>
       </div>
 
@@ -1693,7 +1749,8 @@
       tags: ["n8n", "Claude / AI", "Workflow Automation", "Custom APIs"],
       email: "hello@example.com",
       linkedin: "https://linkedin.com/in/",
-      github: "https://github.com/"
+      github: "https://github.com/",
+      whatsapp: ""
     },
     projects: [
       { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" },
@@ -1857,6 +1914,7 @@
       const email = (content.about.email || '').trim();
       const linkedin = (content.about.linkedin || '').trim();
       const github = (content.about.github || '').trim();
+      const whatsapp = (content.about.whatsapp || '').trim();
 
       setHref('contactEmailBtn', email ? 'mailto:' + email : '#');
       setHref('footerEmail', email ? 'mailto:' + email : '#');
@@ -1864,6 +1922,27 @@
       setHref('footerLinkedin', linkedin);
       setHref('contactGithubBtn', github);
       setHref('footerGithub', github);
+
+      // WhatsApp: show buttons only when a number is configured
+      const waUrl = whatsapp ? 'https://wa.me/' + whatsapp : '';
+      const contactWaBtn = document.getElementById('contactWhatsappBtn');
+      const floatingWa = document.getElementById('floatingWhatsapp');
+      if (contactWaBtn) {
+        if (waUrl) {
+          contactWaBtn.setAttribute('href', waUrl);
+          contactWaBtn.classList.remove('hidden');
+        } else {
+          contactWaBtn.classList.add('hidden');
+        }
+      }
+      if (floatingWa) {
+        if (waUrl) {
+          floatingWa.setAttribute('href', waUrl);
+          floatingWa.classList.remove('hidden');
+        } else {
+          floatingWa.classList.add('hidden');
+        }
+      }
     }
 
     // Projects
@@ -2020,6 +2099,7 @@
     setVal('admEmail', c.about && c.about.email);
     setVal('admLinkedin', c.about && c.about.linkedin);
     setVal('admGithub', c.about && c.about.github);
+    setVal('admWhatsapp', c.about && c.about.whatsapp);
 
     // Projects
     (c.projects || []).forEach((p, idx) => {
@@ -2082,7 +2162,8 @@
         tags: (previous.about && previous.about.tags) || DEFAULT_CONTENT.about.tags,
         email: val('admEmail').trim(),
         linkedin: val('admLinkedin').trim(),
-        github: val('admGithub').trim()
+        github: val('admGithub').trim(),
+        whatsapp: val('admWhatsapp').trim()
       },
       projects: projects,
       skills: skills,
