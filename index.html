@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AKN — Automation &amp; AI Builder</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+
+<!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{
+    --bg: #0B0F0E;
+    --panel: #12181A;
+    --amber: #FAC775;
+    --teal: #1D9E75;
+    --text: #EAEAE6;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .heading-font{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+  }
+
+  a{ text-decoration: none; }
+
+  section, header.hero, footer.site-footer{
+    scroll-margin-top: 84px;
+  }
+
+  .hidden{ display: none !important; }
+
+  /* ===== Loading overlay ===== */
+  #loadingOverlay{
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+  }
+
+  #loadingOverlay.hide{
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .loading-spinner{
+    width: 42px;
+    height: 42px;
+    border: 3px solid rgba(29, 158, 117, 0.25);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: akn-spin 0.8s linear infinite;
+  }
+
+  @keyframes akn-spin{
+    to{ transform: rotate(360deg); }
+  }
+
+  .loading-text{
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(234, 234, 230, 0.6);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ===== Fallback / fetch warning banner ===== */
+  #fetchWarning{
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 998;
+    background-color: rgba(250, 199, 117, 0.12);
+    border: 1px solid rgba(250, 199, 117, 0.45);
+    color: var(--amber);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.4px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  #fetchWarning.show{
+    opacity: 1;
+  }
+
+  /* ===== Fade-in on scroll ===== */
+  .fade-section{
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+
+  .fade-section.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== Site wrapper (toggled off when admin panel is open) ===== */
+  #siteWrapper.site-hidden{
+    display: none;
+  }
+
+  /* ===== Navbar ===== */
+  .navbar{
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 6vw;
+    background-color: rgba(11, 15, 14, 0.75);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(29, 158, 117, 0.25);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+  }
+
+  .navbar.scrolled{
+    background-color: rgba(11, 15, 14, 0.95);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    padding: 12px 6vw;
+  }
+
+  .navbar-logo{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--amber);
+    letter-spacing: 1px;
+  }
+
+  .navbar-links{
+    display: flex;
+    align-items: center;
+    gap: 2.4rem;
+    list-style: none;
+  }
+
+  .navbar-link{
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.25s ease;
+  }
+
+  .navbar-link::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0%;
+    height: 1.5px;
+    background-color: var(--teal);
+    transition: width 0.25s ease;
+  }
+
+  .navbar-link:hover{
+    color: var(--amber);
+  }
+
+  .navbar-link:hover::after{
+    width: 100%;
+  }
+
+  .navbar-toggle{
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+
+  .navbar-toggle span{
+    width: 26px;
+    height: 2px;
+    background-color: var(--amber);
+    display: block;
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8vh 6vw;
+    overflow: hidden;
+  }
+
+  .hero-bg{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.16;
+    pointer-events: none;
+  }
+
+  .hero-glow{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw;
+    height: 60vw;
+    max-width: 700px;
+    max-height: 700px;
+    background: radial-gradient(circle, rgba(29,158,117,0.10) 0%, rgba(29,158,117,0) 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hero-content{
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+  }
+
+  .hero-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--teal);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    border: 1px solid rgba(29,158,117,0.4);
+    padding: 6px 16px;
+    border-radius: 2px;
+    background-color: rgba(29,158,117,0.06);
+  }
+
+  .hero-heading{
+    font-size: clamp(4rem, 14vw, 9rem);
+    line-height: 1;
+    color: var(--amber);
+    letter-spacing: 2px;
+  }
+
+  .hero-subheading{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: var(--text);
+  }
+
+  .hero-byline{
+    font-size: 0.95rem;
+    color: rgba(234, 234, 230, 0.6);
+    font-weight: 500;
+  }
+
+  .hero-byline span{
+    color: var(--teal);
+  }
+
+  .hero-tagline{
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: rgba(234, 234, 230, 0.85);
+    max-width: 520px;
+    margin-top: 0.4rem;
+  }
+
+  .hero-buttons{
+    display: flex;
+    gap: 1.2rem;
+    margin-top: 1.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 14px 32px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .btn-primary{
+    background-color: var(--amber);
+    color: var(--bg);
+    border: 1px solid var(--amber);
+  }
+
+  .btn-primary:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(250, 199, 117, 0.25);
+  }
+
+  .btn-outline{
+    background-color: transparent;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+  }
+
+  .btn-outline:hover{
+    background-color: rgba(29, 158, 117, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* ===== Section heading shared pattern ===== */
+  .section-heading-wrap{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.9rem;
+    margin-bottom: 4rem;
+  }
+
+  .section-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .section-heading{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    color: var(--amber);
+  }
+
+  .section-divider{
+    width: 56px;
+    height: 3px;
+    background-color: var(--teal);
+    border: none;
+  }
+
+  /* ===== About Section ===== */
+  #about{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 10vh 6vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-container{
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 4.5rem;
+    align-items: center;
+  }
+
+  .about-photo-wrap{
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+
+  .about-photo-box{
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 4 / 5;
+    border-radius: 16px;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-photo-box::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #1a2224;
+  }
+
+  .about-photo-placeholder-text{
+    position: relative;
+    z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(234, 234, 230, 0.35);
+  }
+
+  .about-photo-corner{
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border: 1.5px solid var(--teal);
+    opacity: 0.7;
+  }
+
+  .about-photo-corner.tl{ top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .about-photo-corner.br{ bottom: -1px; right: -1px; border-left: none; border-top: none; }
+
+  .about-content{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .about-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .about-name{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .about-divider{
+    width: 56px;
+    height: 3px;
+    background-color: var(--teal);
+    border: none;
+    margin: 0.2rem 0 0.4rem;
+  }
+
+  .about-bio{
+    font-size: clamp(0.98rem, 1.4vw, 1.08rem);
+    line-height: 1.75;
+    color: rgba(234, 234, 230, 0.85);
+    max-width: 560px;
+  }
+
+  .about-bio strong{
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .about-tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+
+  .about-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 6px 14px;
+    border-radius: 2px;
+    border: 1px solid rgba(29, 158, 117, 0.4);
+    color: var(--teal);
+    background-color: rgba(29, 158, 117, 0.06);
+  }
+
+  /* ===== Projects Section ===== */
+  #projects{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 10vh 6vw;
+    position: relative;
+  }
+
+  .projects-container{
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .projects-subtext{
+    font-size: 1rem;
+    color: rgba(234, 234, 230, 0.65);
+    max-width: 520px;
+  }
+
+  .projects-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .project-card{
+    position: relative;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+    border-radius: 12px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .project-card:hover{
+    transform: translateY(-6px);
+    border-color: rgba(29, 158, 117, 0.7);
+    box-shadow: 0 10px 30px rgba(29, 158, 117, 0.15);
+  }
+
+  .project-card-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .project-name{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--text);
+    line-height: 1.35;
+  }
+
+  .project-status{
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--teal);
+    border: 1px solid rgba(29, 158, 117, 0.55);
+    background-color: rgba(29, 158, 117, 0.07);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .project-status.status-live{
+    color: var(--amber);
+    border-color: rgba(250, 199, 117, 0.55);
+    background-color: rgba(250, 199, 117, 0.07);
+  }
+
+  .project-problem{
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(234, 234, 230, 0.8);
+  }
+
+  .project-tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+
+  .project-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.4px;
+    color: var(--amber);
+    border: 1px solid rgba(250, 199, 117, 0.45);
+    background-color: rgba(250, 199, 117, 0.06);
+    padding: 4px 11px;
+    border-radius: 999px;
+  }
+
+  .project-result{
+    font-size: 0.88rem;
+    font-style: italic;
+    color: rgba(234, 234, 230, 0.5);
+    margin-top: 0.1rem;
+  }
+
+  .project-link{
+    margin-top: auto;
+    padding-top: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--amber);
+    align-self: flex-start;
+    position: relative;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .project-link:hover{
+    opacity: 0.8;
+    transform: translateX(3px);
+  }
+
+  /* ===== Skills Section ===== */
+  #skills{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 10vh 6vw;
+    position: relative;
+  }
+
+  .skills-container{
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .skills-list{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .skill-row{
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 2rem;
+    align-items: baseline;
+    padding: 1.8rem 0;
+  }
+
+  .skill-row:not(:last-child){
+    border-bottom: 1px solid rgba(29, 158, 117, 0.3);
+  }
+
+  .skill-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--amber);
+    letter-spacing: 0.3px;
+  }
+
+  .skill-desc{
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(234, 234, 230, 0.85);
+  }
+
+  .skill-desc strong{
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* ===== Contact Section ===== */
+  #contact{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 10vh 6vw;
+    position: relative;
+  }
+
+  .contact-container{
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.2rem;
+  }
+
+  .contact-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  .contact-heading{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    color: var(--amber);
+  }
+
+  .contact-divider{
+    width: 56px;
+    height: 3px;
+    background-color: var(--teal);
+    border: none;
+    margin-bottom: 0.4rem;
+  }
+
+  .contact-subtext{
+    font-size: clamp(1rem, 1.6vw, 1.1rem);
+    line-height: 1.7;
+    color: rgba(234, 234, 230, 0.8);
+    max-width: 520px;
+  }
+
+  .contact-buttons{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.1rem;
+    margin-top: 1.4rem;
+  }
+
+  /* ===== Footer ===== */
+  .site-footer{
+    background-color: var(--bg);
+    border-top: 1px solid rgba(29, 158, 117, 0.3);
+    padding: 2.4rem 6vw 1.6rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text);
+  }
+
+  .footer-top{
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-bottom: 1.8rem;
+  }
+
+  .footer-brand{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .footer-brand span{
+    color: var(--amber);
+  }
+
+  .footer-socials{
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .footer-social-link{
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(29, 158, 117, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal);
+    transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .footer-social-link svg{
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  .footer-social-link:hover{
+    background-color: rgba(29, 158, 117, 0.12);
+    border-color: var(--teal);
+    transform: translateY(-2px);
+  }
+
+  .footer-bottom{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 1.4rem;
+    border-top: 1px solid rgba(234, 234, 230, 0.08);
+    text-align: center;
+    position: relative;
+  }
+
+  .footer-copyright{
+    font-size: 0.8rem;
+    color: rgba(234, 234, 230, 0.45);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .footer-admin-link{
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.68rem;
+    color: rgba(29, 158, 117, 0.45);
+    letter-spacing: 0.4px;
+    transition: color 0.2s ease;
+  }
+
+  .footer-admin-link:hover{
+    color: var(--teal);
+  }
+
+  /* ============================================================
+     ADMIN PANEL
+     ============================================================ */
+  .admin-panel{
+    display: none;
+    min-height: 100vh;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .admin-panel.active{
+    display: block;
+  }
+
+  .admin-panel *{
+    box-sizing: border-box;
+  }
+
+  /* Login screen */
+  .admin-login-screen{
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6vh 6vw;
+  }
+
+  .admin-login-box{
+    width: 100%;
+    max-width: 380px;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.3);
+    border-radius: 12px;
+    padding: 2.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    text-align: center;
+  }
+
+  .admin-login-box h2{
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    font-size: 1.3rem;
+  }
+
+  .admin-login-box p.admin-hint{
+    font-size: 0.8rem;
+    color: rgba(234, 234, 230, 0.5);
+  }
+
+  .admin-input, .admin-textarea, .admin-select{
+    width: 100%;
+    background-color: var(--bg);
+    border: 1px solid rgba(29, 158, 117, 0.35);
+    color: var(--text);
+    padding: 11px 13px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+  }
+
+  .admin-input:focus, .admin-textarea:focus, .admin-select:focus{
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  .admin-textarea{
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+  }
+
+  .admin-btn{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--amber);
+    background-color: var(--amber);
+    color: var(--bg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  }
+
+  .admin-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(250, 199, 117, 0.25);
+  }
+
+  .admin-btn:disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .admin-error{
+    font-size: 0.82rem;
+    color: #ff8a80;
+  }
+
+  .admin-back-link{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--teal);
+    transition: opacity 0.2s ease;
+  }
+
+  .admin-back-link:hover{
+    opacity: 0.75;
+  }
+
+  /* Dashboard */
+  .admin-dashboard-header{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: rgba(11, 15, 14, 0.95);
+    border-bottom: 1px solid rgba(29, 158, 117, 0.3);
+    padding: 1.2rem 6vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .admin-dashboard-header h2{
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    font-size: 1.25rem;
+  }
+
+  .admin-dashboard-body{
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 6vw 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .admin-section{
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+    border-radius: 12px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+
+  .admin-section-title{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem;
+    color: var(--amber);
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(29, 158, 117, 0.25);
+  }
+
+  .admin-field{
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .admin-field label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: rgba(234, 234, 230, 0.6);
+  }
+
+  .admin-grid-2{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+
+  .admin-project-card{
+    background-color: rgba(29, 158, 117, 0.04);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+    border-radius: 10px;
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .admin-project-card-title{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--teal);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .admin-skill-row{
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1.2rem;
+    padding-bottom: 1.2rem;
+  }
+
+  .admin-skill-row:not(:last-child){
+    border-bottom: 1px solid rgba(29, 158, 117, 0.15);
+  }
+
+  .admin-download-wrap{
+    position: sticky;
+    bottom: 0;
+    background-color: rgba(11, 15, 14, 0.95);
+    border-top: 1px solid rgba(29, 158, 117, 0.3);
+    padding: 1.2rem 6vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .admin-download-btn{
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  .admin-save-note{
+    font-size: 0.8rem;
+    color: rgba(234, 234, 230, 0.45);
+    text-align: center;
+  }
+
+  .admin-save-success{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--teal);
+    text-align: center;
+  }
+
+  .admin-save-error{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #ff8a80;
+    text-align: center;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 860px){
+    .about-container{
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      text-align: center;
+    }
+
+    .about-content{
+      align-items: center;
+    }
+
+    .about-photo-box{
+      max-width: 280px;
+    }
+
+    .about-bio{
+      max-width: 100%;
+    }
+
+    .about-tags{
+      justify-content: center;
+    }
+
+    .projects-grid{
+      grid-template-columns: 1fr;
+    }
+
+    .admin-grid-2{
+      grid-template-columns: 1fr;
+    }
+
+    .admin-skill-row{
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+  }
+
+  @media (max-width: 820px){
+    .navbar-links{
+      position: fixed;
+      top: 64px;
+      right: 0;
+      height: calc(100vh - 64px);
+      width: 60%;
+      max-width: 280px;
+      background-color: var(--panel);
+      border-left: 1px solid rgba(29,158,117,0.25);
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 2.5rem;
+      gap: 2rem;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .navbar-links.open{
+      transform: translateX(0);
+    }
+
+    .navbar-toggle{
+      display: flex;
+    }
+  }
+
+  @media (max-width: 640px){
+    .skill-row{
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding: 1.5rem 0;
+    }
+
+    .footer-top{
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .footer-admin-link{
+      position: static;
+      display: block;
+      transform: none;
+      margin-bottom: 0.6rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px){
+    .navbar{
+      padding: 16px 5vw;
+    }
+
+    .hero{
+      padding: 6vh 6vw;
+    }
+
+    .btn{
+      padding: 12px 24px;
+      font-size: 0.82rem;
+    }
+
+    #about, #projects, #skills, #contact{
+      padding: 7vh 6vw;
+    }
+
+    .section-heading-wrap{
+      margin-bottom: 2.5rem;
+    }
+
+    .about-photo-box{
+      max-width: 220px;
+    }
+
+    .project-card{
+      padding: 1.5rem;
+    }
+
+    .contact-buttons{
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .btn{
+      justify-content: center;
+      width: 100%;
+    }
+
+    .site-footer{
+      padding: 2rem 6vw 1.4rem;
+    }
+
+    .admin-dashboard-body{
+      padding: 2rem 5vw 5rem;
+    }
+
+    .admin-section{
+      padding: 1.3rem;
+    }
+
+    .admin-login-box{
+      padding: 1.8rem 1.4rem;
+    }
+
+    .admin-dashboard-header{
+      padding: 1rem 5vw;
+    }
+
+    .admin-dashboard-header h2{
+      font-size: 1.05rem;
+    }
+
+    .admin-download-wrap{
+      padding: 1rem 5vw;
+    }
+
+    .admin-project-card{
+      padding: 1.1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== LOADING OVERLAY ==================== -->
+<div id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Loading site content…</p>
+</div>
+
+<!-- ==================== FETCH WARNING BANNER ==================== -->
+<div id="fetchWarning">Couldn't reach the database — showing default content.</div>
+
+<!-- ==================== SITE WRAPPER (public website) ==================== -->
+<div id="siteWrapper" class="">
+
+  <!-- Navbar Section -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-logo">AKN</div>
+    <button class="navbar-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <ul class="navbar-links" id="navLinks">
+      <li><a href="#about" class="navbar-link">About</a></li>
+      <li><a href="#projects" class="navbar-link">Projects</a></li>
+      <li><a href="#skills" class="navbar-link">Skills</a></li>
+      <li><a href="#contact" class="navbar-link">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero" id="hero">
+    <svg class="hero-bg" id="heroBg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 900"></svg>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+      <span class="hero-tag">System Online</span>
+      <h1 class="hero-heading" id="heroTitle">AKN</h1>
+      <h2 class="hero-subheading" id="heroSubtitle">Automation &amp; AI Builder</h2>
+      <p class="hero-byline">by <span id="heroByline">Arslan Khan Niazi</span></p>
+      <p class="hero-tagline" id="heroTagline">I automate your busywork so you can focus on growth.</p>
+
+      <div class="hero-buttons">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="#contact" class="btn btn-outline">Contact</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- About Section -->
+  <section id="about" class="fade-section">
+    <div class="about-container">
+
+      <!-- Photo Placeholder -->
+      <div class="about-photo-wrap">
+        <div class="about-photo-box">
+          <span class="about-photo-corner tl"></span>
+          <span class="about-photo-corner br"></span>
+          <span class="about-photo-placeholder-text">Photo Coming Soon</span>
+        </div>
+      </div>
+
+      <!-- About Content -->
+      <div class="about-content">
+        <span class="about-label">Founder</span>
+        <h2 class="about-name" id="aboutName">Arslan Khan Niazi</h2>
+        <hr class="about-divider">
+        <p class="about-bio" id="aboutBio">I build automation systems using n8n, AI tools with Claude, and custom workflows that eliminate repetitive work. My focus is on turning slow, manual processes into fast, reliable systems that run in the background — so businesses can spend less time on busywork and more time on growth.</p>
+        <div class="about-tags" id="aboutTags">
+          <span class="about-tag">n8n</span>
+          <span class="about-tag">Claude / AI</span>
+          <span class="about-tag">Workflow Automation</span>
+          <span class="about-tag">Custom APIs</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="fade-section">
+    <div class="projects-container">
+
+      <!-- Section Heading -->
+      <div class="section-heading-wrap">
+        <span class="section-label">Selected Work</span>
+        <h2 class="section-heading">Projects</h2>
+        <hr class="section-divider">
+        <p class="projects-subtext">Automation and AI systems built to remove busywork and streamline operations.</p>
+      </div>
+
+      <!-- Projects Grid -->
+      <div class="projects-grid">
+
+        <!-- Project Card 1 -->
+        <div class="project-card" id="project1">
+          <div class="project-card-header">
+            <h3 class="project-name" id="project1Name">Real Estate Website</h3>
+            <span class="project-status" id="project1Status">In Development</span>
+          </div>
+          <p class="project-problem" id="project1Problem">Property inquiries manually handled by agents are slow and inconsistent.</p>
+          <div class="project-tags" id="project1Tags"><span class="project-tag">Claude</span><span class="project-tag">n8n</span></div>
+          <p class="project-result" id="project1Result">Result: Coming soon</p>
+          <a href="#" class="project-link" id="project1Link">View Details →</a>
+        </div>
+
+        <!-- Project Card 2 -->
+        <div class="project-card" id="project2">
+          <div class="project-card-header">
+            <h3 class="project-name" id="project2Name">Inventory Management System</h3>
+            <span class="project-status" id="project2Status">In Development</span>
+          </div>
+          <p class="project-problem" id="project2Problem">Manual stock tracking causes stockouts and overstock.</p>
+          <div class="project-tags" id="project2Tags"><span class="project-tag">n8n</span><span class="project-tag">Lovable</span></div>
+          <p class="project-result" id="project2Result">Result: Coming soon</p>
+          <a href="#" class="project-link" id="project2Link">View Details →</a>
+        </div>
+
+        <!-- Project Card 3 -->
+        <div class="project-card" id="project3">
+          <div class="project-card-header">
+            <h3 class="project-name" id="project3Name">Education Attendance System</h3>
+            <span class="project-status" id="project3Status">In Development</span>
+          </div>
+          <p class="project-problem" id="project3Problem">Manual/paper attendance is slow and error-prone.</p>
+          <div class="project-tags" id="project3Tags"><span class="project-tag">n8n</span><span class="project-tag">Lovable</span></div>
+          <p class="project-result" id="project3Result">Result: Coming soon</p>
+          <a href="#" class="project-link" id="project3Link">View Details →</a>
+        </div>
+
+        <!-- Project Card 4 -->
+        <div class="project-card" id="project4">
+          <div class="project-card-header">
+            <h3 class="project-name" id="project4Name">AI Finance / Money Tracker</h3>
+            <span class="project-status" id="project4Status">In Development</span>
+          </div>
+          <p class="project-problem" id="project4Problem">Tracking expenses manually is tedious and inconsistent.</p>
+          <div class="project-tags" id="project4Tags"><span class="project-tag">Claude</span><span class="project-tag">n8n</span></div>
+          <p class="project-result" id="project4Result">Result: Coming soon</p>
+          <a href="#" class="project-link" id="project4Link">View Details →</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <section id="skills" class="fade-section">
+    <div class="skills-container">
+
+      <!-- Section Heading -->
+      <div class="section-heading-wrap">
+        <span class="section-label">What I Work With</span>
+        <h2 class="section-heading">Skills</h2>
+        <hr class="section-divider">
+      </div>
+
+      <!-- Skills List -->
+      <div class="skills-list">
+
+        <div class="skill-row">
+          <span class="skill-label" id="skill1Label">Automation</span>
+          <p class="skill-desc" id="skill1Desc">n8n — building reliable, end-to-end automated workflows.</p>
+        </div>
+
+        <div class="skill-row">
+          <span class="skill-label" id="skill2Label">AI / LLM Tools</span>
+          <p class="skill-desc" id="skill2Desc">Claude — API integrations, autonomous agents, and AI-powered apps.</p>
+        </div>
+
+        <div class="skill-row">
+          <span class="skill-label" id="skill3Label">App Building</span>
+          <p class="skill-desc" id="skill3Desc">Lovable — no-code/low-code application development.</p>
+        </div>
+
+        <div class="skill-row">
+          <span class="skill-label" id="skill4Label">Core Skill</span>
+          <p class="skill-desc" id="skill4Desc">Turning manual processes into automated systems.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="fade-section">
+    <div class="contact-container">
+      <span class="contact-label">Get In Touch</span>
+      <h2 class="contact-heading" id="contactHeading">Let's talk.</h2>
+      <hr class="contact-divider">
+      <p class="contact-subtext" id="contactSubtext">Open to freelance projects, collaborations, and opportunities in automation &amp; AI.</p>
+
+      <div class="contact-buttons">
+        <a href="mailto:hello@example.com" class="btn btn-primary" id="contactEmailBtn">Email</a>
+        <a href="https://linkedin.com/in/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="contactLinkedinBtn">LinkedIn</a>
+        <a href="https://github.com/" target="_blank" rel="noopener noreferrer" class="btn btn-outline" id="contactGithubBtn">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer fade-section">
+    <div class="footer-top">
+      <p class="footer-brand"><span>AKN</span> — Automation &amp; AI Builder</p>
+
+      <div class="footer-socials">
+        <a href="https://linkedin.com/in/" target="_blank" rel="noopener noreferrer" class="footer-social-link" id="footerLinkedin" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.85 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"></path></svg>
+        </a>
+        <a href="https://github.com/" target="_blank" rel="noopener noreferrer" class="footer-social-link" id="footerGithub" aria-label="GitHub">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.36-3.37-1.36-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.55 2.34 1.1 2.91.84.09-.66.35-1.1.63-1.36-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.3 9.3 0 0 1 5.01 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.42.2 2.47.1 2.73.64.72 1.03 1.63 1.03 2.75 0 3.94-2.35 4.8-4.58 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.19C22 6.58 17.52 2 12 2z"></path></svg>
+        </a>
+        <a href="mailto:hello@example.com" class="footer-social-link" id="footerEmail" aria-label="Email">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"></path></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <a href="#" id="adminLink" class="footer-admin-link">Admin</a>
+      <p class="footer-copyright">© 2026 AKN. All rights reserved.</p>
+    </div>
+  </footer>
+
+</div>
+<!-- ==================== END SITE WRAPPER ==================== -->
+
+
+<!-- ==================== ADMIN PANEL ==================== -->
+<div id="adminPanel" class="admin-panel">
+
+  <!-- Admin Login Screen -->
+  <div id="adminLoginScreen" class="admin-login-screen">
+    <div class="admin-login-box">
+      <h2>Admin Access</h2>
+      <p class="admin-hint">Enter the admin password to edit this website's content.</p>
+      <input type="password" id="adminPasswordInput" class="admin-input" placeholder="Password">
+      <button id="adminLoginBtn" class="admin-btn">Enter</button>
+      <p id="adminLoginError" class="admin-error hidden">Incorrect password. Please try again.</p>
+      <a href="#" id="backToSiteFromLogin" class="admin-back-link">← Back to site</a>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="adminDashboard" class="hidden">
+    <div class="admin-dashboard-header">
+      <h2>Admin Panel — Edit Content</h2>
+      <a href="#" id="backToSiteFromDashboard" class="admin-back-link">← Back to site</a>
+    </div>
+
+    <div class="admin-dashboard-body">
+
+      <!-- Hero Fields -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">Hero</h3>
+        <div class="admin-field">
+          <label for="admHeroTitle">Title</label>
+          <input type="text" id="admHeroTitle" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="admHeroSubtitle">Subtitle</label>
+          <input type="text" id="admHeroSubtitle" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="admHeroByline">Byline</label>
+          <input type="text" id="admHeroByline" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="admHeroTagline">Tagline</label>
+          <input type="text" id="admHeroTagline" class="admin-input">
+        </div>
+      </div>
+
+      <!-- About Fields -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">About</h3>
+        <div class="admin-field">
+          <label for="admAboutName">Name</label>
+          <input type="text" id="admAboutName" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="admAboutBio">Bio</label>
+          <textarea id="admAboutBio" class="admin-textarea"></textarea>
+        </div>
+        <div class="admin-grid-2">
+          <div class="admin-field">
+            <label for="admEmail">Email</label>
+            <input type="email" id="admEmail" class="admin-input">
+          </div>
+          <div class="admin-field">
+            <label for="admLinkedin">LinkedIn URL</label>
+            <input type="text" id="admLinkedin" class="admin-input">
+          </div>
+        </div>
+        <div class="admin-field">
+          <label for="admGithub">GitHub URL</label>
+          <input type="text" id="admGithub" class="admin-input">
+        </div>
+      </div>
+
+      <!-- Projects Fields -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">Projects</h3>
+
+        <div class="admin-project-card">
+          <span class="admin-project-card-title">Project 1</span>
+          <div class="admin-field"><label for="admP1Name">Name</label><input type="text" id="admP1Name" class="admin-input"></div>
+          <div class="admin-field">
+            <label for="admP1Status">Status</label>
+            <select id="admP1Status" class="admin-select">
+              <option value="In Development">In Development</option>
+              <option value="Live Demo">Live Demo</option>
+            </select>
+          </div>
+          <div class="admin-field"><label for="admP1Problem">Problem</label><textarea id="admP1Problem" class="admin-textarea"></textarea></div>
+          <div class="admin-field"><label for="admP1Tools">Tools (comma-separated)</label><input type="text" id="admP1Tools" class="admin-input"></div>
+          <div class="admin-field"><label for="admP1Result">Result</label><input type="text" id="admP1Result" class="admin-input"></div>
+          <div class="admin-field"><label for="admP1Link">Link</label><input type="text" id="admP1Link" class="admin-input"></div>
+        </div>
+
+        <div class="admin-project-card">
+          <span class="admin-project-card-title">Project 2</span>
+          <div class="admin-field"><label for="admP2Name">Name</label><input type="text" id="admP2Name" class="admin-input"></div>
+          <div class="admin-field">
+            <label for="admP2Status">Status</label>
+            <select id="admP2Status" class="admin-select">
+              <option value="In Development">In Development</option>
+              <option value="Live Demo">Live Demo</option>
+            </select>
+          </div>
+          <div class="admin-field"><label for="admP2Problem">Problem</label><textarea id="admP2Problem" class="admin-textarea"></textarea></div>
+          <div class="admin-field"><label for="admP2Tools">Tools (comma-separated)</label><input type="text" id="admP2Tools" class="admin-input"></div>
+          <div class="admin-field"><label for="admP2Result">Result</label><input type="text" id="admP2Result" class="admin-input"></div>
+          <div class="admin-field"><label for="admP2Link">Link</label><input type="text" id="admP2Link" class="admin-input"></div>
+        </div>
+
+        <div class="admin-project-card">
+          <span class="admin-project-card-title">Project 3</span>
+          <div class="admin-field"><label for="admP3Name">Name</label><input type="text" id="admP3Name" class="admin-input"></div>
+          <div class="admin-field">
+            <label for="admP3Status">Status</label>
+            <select id="admP3Status" class="admin-select">
+              <option value="In Development">In Development</option>
+              <option value="Live Demo">Live Demo</option>
+            </select>
+          </div>
+          <div class="admin-field"><label for="admP3Problem">Problem</label><textarea id="admP3Problem" class="admin-textarea"></textarea></div>
+          <div class="admin-field"><label for="admP3Tools">Tools (comma-separated)</label><input type="text" id="admP3Tools" class="admin-input"></div>
+          <div class="admin-field"><label for="admP3Result">Result</label><input type="text" id="admP3Result" class="admin-input"></div>
+          <div class="admin-field"><label for="admP3Link">Link</label><input type="text" id="admP3Link" class="admin-input"></div>
+        </div>
+
+        <div class="admin-project-card">
+          <span class="admin-project-card-title">Project 4</span>
+          <div class="admin-field"><label for="admP4Name">Name</label><input type="text" id="admP4Name" class="admin-input"></div>
+          <div class="admin-field">
+            <label for="admP4Status">Status</label>
+            <select id="admP4Status" class="admin-select">
+              <option value="In Development">In Development</option>
+              <option value="Live Demo">Live Demo</option>
+            </select>
+          </div>
+          <div class="admin-field"><label for="admP4Problem">Problem</label><textarea id="admP4Problem" class="admin-textarea"></textarea></div>
+          <div class="admin-field"><label for="admP4Tools">Tools (comma-separated)</label><input type="text" id="admP4Tools" class="admin-input"></div>
+          <div class="admin-field"><label for="admP4Result">Result</label><input type="text" id="admP4Result" class="admin-input"></div>
+          <div class="admin-field"><label for="admP4Link">Link</label><input type="text" id="admP4Link" class="admin-input"></div>
+        </div>
+
+      </div>
+
+      <!-- Skills Fields -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">Skills</h3>
+
+        <div class="admin-skill-row">
+          <div class="admin-field"><label for="admSkill1Label">Label 1</label><input type="text" id="admSkill1Label" class="admin-input"></div>
+          <div class="admin-field"><label for="admSkill1Desc">Description 1</label><input type="text" id="admSkill1Desc" class="admin-input"></div>
+        </div>
+        <div class="admin-skill-row">
+          <div class="admin-field"><label for="admSkill2Label">Label 2</label><input type="text" id="admSkill2Label" class="admin-input"></div>
+          <div class="admin-field"><label for="admSkill2Desc">Description 2</label><input type="text" id="admSkill2Desc" class="admin-input"></div>
+        </div>
+        <div class="admin-skill-row">
+          <div class="admin-field"><label for="admSkill3Label">Label 3</label><input type="text" id="admSkill3Label" class="admin-input"></div>
+          <div class="admin-field"><label for="admSkill3Desc">Description 3</label><input type="text" id="admSkill3Desc" class="admin-input"></div>
+        </div>
+        <div class="admin-skill-row">
+          <div class="admin-field"><label for="admSkill4Label">Label 4</label><input type="text" id="admSkill4Label" class="admin-input"></div>
+          <div class="admin-field"><label for="admSkill4Desc">Description 4</label><input type="text" id="admSkill4Desc" class="admin-input"></div>
+        </div>
+
+      </div>
+
+      <!-- Contact Fields -->
+      <div class="admin-section">
+        <h3 class="admin-section-title">Contact</h3>
+        <div class="admin-field">
+          <label for="admContactHeading">Heading</label>
+          <input type="text" id="admContactHeading" class="admin-input">
+        </div>
+        <div class="admin-field">
+          <label for="admContactSubtext">Subtext</label>
+          <textarea id="admContactSubtext" class="admin-textarea"></textarea>
+        </div>
+      </div>
+
+      <p class="admin-save-note">Changes are saved straight to the live Supabase database and reflected on the site immediately.</p>
+
+    </div>
+
+    <div class="admin-download-wrap">
+      <button id="saveChangesBtn" class="admin-btn admin-download-btn">Save Changes</button>
+      <p id="saveSuccessMsg" class="admin-save-success hidden">✅ Saved! Changes are now live.</p>
+      <p id="saveErrorMsg" class="admin-save-error hidden">⚠️ Could not save changes. Please try again.</p>
+    </div>
+  </div>
+
+</div>
+<!-- ==================== END ADMIN PANEL ==================== -->
+
+
+<script>
+  // ============================================================
+  // SUPABASE CONFIG
+  // ============================================================
+  const SUPABASE_URL = "https://gifauhzdyyabrbbbuczm.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_TxMKEDkCylZv2PaR87hTGA_F5BXPfHF";
+  const TABLE_NAME = "site_content";
+  const ROW_ID = 1;
+
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ===== ADMIN PASSWORD (change this to your own) =====
+  const ADMIN_PASSWORD = "akn2956";
+
+  // Fallback content used if the database can't be reached (e.g. first
+  // run before the site_content row has been seeded, or offline).
+  const DEFAULT_CONTENT = {
+    hero: {
+      title: "AKN",
+      subtitle: "Automation & AI Builder",
+      byline: "Arslan Khan Niazi",
+      tagline: "I automate your busywork so you can focus on growth."
+    },
+    about: {
+      name: "Arslan Khan Niazi",
+      bio: "I build automation systems using n8n, AI tools with Claude, and custom workflows that eliminate repetitive work. My focus is on turning slow, manual processes into fast, reliable systems that run in the background — so businesses can spend less time on busywork and more time on growth.",
+      tags: ["n8n", "Claude / AI", "Workflow Automation", "Custom APIs"],
+      email: "hello@example.com",
+      linkedin: "https://linkedin.com/in/",
+      github: "https://github.com/"
+    },
+    projects: [
+      { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" },
+      { name: "Inventory Management System", status: "In Development", problem: "Manual stock tracking causes stockouts and overstock.", tools: ["n8n", "Lovable"], result: "Coming soon", link: "#" },
+      { name: "Education Attendance System", status: "In Development", problem: "Manual/paper attendance is slow and error-prone.", tools: ["n8n", "Lovable"], result: "Coming soon", link: "#" },
+      { name: "AI Finance / Money Tracker", status: "In Development", problem: "Tracking expenses manually is tedious and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" }
+    ],
+    skills: [
+      { label: "Automation", desc: "n8n — building reliable, end-to-end automated workflows." },
+      { label: "AI / LLM Tools", desc: "Claude — API integrations, autonomous agents, and AI-powered apps." },
+      { label: "App Building", desc: "Lovable — no-code/low-code application development." },
+      { label: "Core Skill", desc: "Turning manual processes into automated systems." }
+    ],
+    contact: {
+      heading: "Let's talk.",
+      subtext: "Open to freelance projects, collaborations, and opportunities in automation & AI."
+    }
+  };
+
+  // In-memory copy of whatever is currently rendered (from DB or fallback).
+  let siteContent = null;
+
+  // Sticky navbar shadow on scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 20) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+
+  // Mobile menu toggle
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.getElementById('navLinks');
+  navToggle.addEventListener('click', () => {
+    navLinks.classList.toggle('open');
+  });
+
+  // Smooth scroll for all nav links (accounts for sticky navbar height)
+  document.querySelectorAll('.navbar-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const targetId = link.getAttribute('href');
+      const targetEl = document.querySelector(targetId);
+      if (targetEl) {
+        e.preventDefault();
+        const navHeight = navbar.offsetHeight;
+        const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight + 1;
+        window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+      }
+      navLinks.classList.remove('open');
+    });
+  });
+
+  // Generate subtle node/line network pattern in hero background (SVG, teal, low opacity)
+  (function generateNodeNetwork(){
+    const svg = document.getElementById('heroBg');
+    const ns = "http://www.w3.org/2000/svg";
+    const width = 1600;
+    const height = 900;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    const nodeCount = 42;
+    const points = [];
+
+    for (let i = 0; i < nodeCount; i++){
+      points.push({
+        x: Math.random() * width,
+        y: Math.random() * height
+      });
+    }
+
+    const maxDist = 220;
+
+    for (let i = 0; i < points.length; i++){
+      for (let j = i + 1; j < points.length; j++){
+        const dx = points[i].x - points[j].x;
+        const dy = points[i].y - points[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < maxDist){
+          const line = document.createElementNS(ns, 'line');
+          line.setAttribute('x1', points[i].x);
+          line.setAttribute('y1', points[i].y);
+          line.setAttribute('x2', points[j].x);
+          line.setAttribute('y2', points[j].y);
+          line.setAttribute('stroke', '#1D9E75');
+          line.setAttribute('stroke-width', '1');
+          line.setAttribute('opacity', (1 - dist / maxDist) * 0.6);
+          svg.appendChild(line);
+        }
+      }
+    }
+
+    points.forEach(p => {
+      const circle = document.createElementNS(ns, 'circle');
+      circle.setAttribute('cx', p.x);
+      circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', Math.random() * 1.8 + 1.2);
+      circle.setAttribute('fill', '#1D9E75');
+      svg.appendChild(circle);
+    });
+  })();
+
+  // Fade-in-on-scroll animation for each section
+  (function fadeInOnScroll(){
+    const sections = document.querySelectorAll('.fade-section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+    sections.forEach(section => observer.observe(section));
+  })();
+
+  // ============================================================
+  // RENDERING: paint the DOM from a content object
+  // ============================================================
+  function setText(id, value){
+    const el = document.getElementById(id);
+    if (el && value !== undefined && value !== null) el.textContent = value;
+  }
+
+  function setHref(id, value){
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('href', value || '#');
+  }
+
+  function renderTagList(containerId, items, className){
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    (items || []).forEach(item => {
+      const span = document.createElement('span');
+      span.className = className;
+      span.textContent = item;
+      container.appendChild(span);
+    });
+  }
+
+  function renderSite(content){
+    if (!content) return;
+
+    // Hero
+    if (content.hero) {
+      setText('heroTitle', content.hero.title);
+      setText('heroSubtitle', content.hero.subtitle);
+      setText('heroByline', content.hero.byline);
+      setText('heroTagline', content.hero.tagline);
+    }
+
+    // About
+    if (content.about) {
+      setText('aboutName', content.about.name);
+      setText('aboutBio', content.about.bio);
+      renderTagList('aboutTags', content.about.tags, 'about-tag');
+
+      const email = (content.about.email || '').trim();
+      const linkedin = (content.about.linkedin || '').trim();
+      const github = (content.about.github || '').trim();
+
+      setHref('contactEmailBtn', email ? 'mailto:' + email : '#');
+      setHref('footerEmail', email ? 'mailto:' + email : '#');
+      setHref('contactLinkedinBtn', linkedin);
+      setHref('footerLinkedin', linkedin);
+      setHref('contactGithubBtn', github);
+      setHref('footerGithub', github);
+    }
+
+    // Projects
+    (content.projects || []).forEach((p, idx) => {
+      const i = idx + 1;
+      setText('project' + i + 'Name', p.name);
+
+      const statusEl = document.getElementById('project' + i + 'Status');
+      if (statusEl) {
+        statusEl.textContent = p.status;
+        statusEl.classList.toggle('status-live', p.status === 'Live Demo');
+      }
+
+      setText('project' + i + 'Problem', p.problem);
+      renderTagList('project' + i + 'Tags', p.tools, 'project-tag');
+      setText('project' + i + 'Result', 'Result: ' + (p.result || ''));
+      setHref('project' + i + 'Link', p.link);
+    });
+
+    // Skills
+    (content.skills || []).forEach((s, idx) => {
+      const i = idx + 1;
+      setText('skill' + i + 'Label', s.label);
+      setText('skill' + i + 'Desc', s.desc);
+    });
+
+    // Contact
+    if (content.contact) {
+      setText('contactHeading', content.contact.heading);
+      setText('contactSubtext', content.contact.subtext);
+    }
+  }
+
+  // ============================================================
+  // LOAD CONTENT FROM SUPABASE
+  // ============================================================
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const fetchWarning = document.getElementById('fetchWarning');
+
+  function hideLoadingOverlay(){
+    loadingOverlay.classList.add('hide');
+  }
+
+  function showFetchWarning(){
+    fetchWarning.classList.add('show');
+    setTimeout(() => fetchWarning.classList.remove('show'), 5000);
+  }
+
+  async function loadContent(){
+    try {
+      const { data, error } = await supabaseClient
+        .from(TABLE_NAME)
+        .select('content')
+        .eq('id', ROW_ID)
+        .single();
+
+      if (error || !data || !data.content) {
+        throw error || new Error('No content returned from Supabase.');
+      }
+
+      siteContent = data.content;
+    } catch (err) {
+      console.warn('Falling back to default content — could not load from Supabase:', err);
+      siteContent = DEFAULT_CONTENT;
+      showFetchWarning();
+    }
+
+    renderSite(siteContent);
+    hideLoadingOverlay();
+  }
+
+  // ============================================================
+  // ADMIN PANEL LOGIC
+  // ============================================================
+  const siteWrapper = document.getElementById('siteWrapper');
+  const adminPanel = document.getElementById('adminPanel');
+  const adminLoginScreen = document.getElementById('adminLoginScreen');
+  const adminDashboard = document.getElementById('adminDashboard');
+  const adminPasswordInput = document.getElementById('adminPasswordInput');
+  const adminLoginError = document.getElementById('adminLoginError');
+  const saveSuccessMsg = document.getElementById('saveSuccessMsg');
+  const saveErrorMsg = document.getElementById('saveErrorMsg');
+
+  function openAdmin(){
+    siteWrapper.classList.add('site-hidden');
+    adminPanel.classList.add('active');
+    showLoginScreen();
+    window.scrollTo(0, 0);
+  }
+
+  function closeAdmin(){
+    adminPanel.classList.remove('active');
+    siteWrapper.classList.remove('site-hidden');
+    window.scrollTo(0, 0);
+  }
+
+  function showLoginScreen(){
+    adminLoginScreen.classList.remove('hidden');
+    adminDashboard.classList.add('hidden');
+    adminPasswordInput.value = '';
+    adminLoginError.classList.add('hidden');
+  }
+
+  function showDashboard(){
+    adminLoginScreen.classList.add('hidden');
+    adminDashboard.classList.remove('hidden');
+    populateAdminForm();
+  }
+
+  document.getElementById('adminLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    openAdmin();
+  });
+
+  document.getElementById('backToSiteFromLogin').addEventListener('click', (e) => {
+    e.preventDefault();
+    closeAdmin();
+  });
+
+  document.getElementById('backToSiteFromDashboard').addEventListener('click', (e) => {
+    e.preventDefault();
+    closeAdmin();
+  });
+
+  function attemptLogin(){
+    if (adminPasswordInput.value === ADMIN_PASSWORD) {
+      showDashboard();
+    } else {
+      adminLoginError.classList.remove('hidden');
+    }
+  }
+
+  document.getElementById('adminLoginBtn').addEventListener('click', attemptLogin);
+  adminPasswordInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') attemptLogin();
+  });
+
+  // ----- Helpers -----
+  function val(id){ return document.getElementById(id).value; }
+  function setVal(id, v){ document.getElementById(id).value = v !== undefined && v !== null ? v : ''; }
+
+  function populateAdminForm(){
+    const c = siteContent || DEFAULT_CONTENT;
+
+    // Hero
+    setVal('admHeroTitle', c.hero && c.hero.title);
+    setVal('admHeroSubtitle', c.hero && c.hero.subtitle);
+    setVal('admHeroByline', c.hero && c.hero.byline);
+    setVal('admHeroTagline', c.hero && c.hero.tagline);
+
+    // About
+    setVal('admAboutName', c.about && c.about.name);
+    setVal('admAboutBio', c.about && c.about.bio);
+    setVal('admEmail', c.about && c.about.email);
+    setVal('admLinkedin', c.about && c.about.linkedin);
+    setVal('admGithub', c.about && c.about.github);
+
+    // Projects
+    (c.projects || []).forEach((p, idx) => {
+      const i = idx + 1;
+      setVal('admP' + i + 'Name', p.name);
+      setVal('admP' + i + 'Status', p.status);
+      setVal('admP' + i + 'Problem', p.problem);
+      setVal('admP' + i + 'Tools', (p.tools || []).join(', '));
+      setVal('admP' + i + 'Result', p.result);
+      setVal('admP' + i + 'Link', p.link);
+    });
+
+    // Skills
+    (c.skills || []).forEach((s, idx) => {
+      const i = idx + 1;
+      setVal('admSkill' + i + 'Label', s.label);
+      setVal('admSkill' + i + 'Desc', s.desc);
+    });
+
+    // Contact
+    setVal('admContactHeading', c.contact && c.contact.heading);
+    setVal('admContactSubtext', c.contact && c.contact.subtext);
+  }
+
+  function buildContentFromForm(){
+    const previous = siteContent || DEFAULT_CONTENT;
+
+    const projects = [];
+    for (let i = 1; i <= 4; i++){
+      projects.push({
+        name: val('admP' + i + 'Name').trim(),
+        status: val('admP' + i + 'Status'),
+        problem: val('admP' + i + 'Problem').trim(),
+        tools: val('admP' + i + 'Tools').split(',').map(t => t.trim()).filter(t => t.length > 0),
+        result: val('admP' + i + 'Result').trim(),
+        link: val('admP' + i + 'Link').trim() || '#'
+      });
+    }
+
+    const skills = [];
+    for (let i = 1; i <= 4; i++){
+      skills.push({
+        label: val('admSkill' + i + 'Label').trim(),
+        desc: val('admSkill' + i + 'Desc').trim()
+      });
+    }
+
+    return {
+      hero: {
+        title: val('admHeroTitle').trim(),
+        subtitle: val('admHeroSubtitle').trim(),
+        byline: val('admHeroByline').trim(),
+        tagline: val('admHeroTagline').trim()
+      },
+      about: {
+        name: val('admAboutName').trim(),
+        bio: val('admAboutBio').trim(),
+        // Tags aren't exposed as a form field yet — keep whatever was
+        // already stored so a save never wipes them out.
+        tags: (previous.about && previous.about.tags) || DEFAULT_CONTENT.about.tags,
+        email: val('admEmail').trim(),
+        linkedin: val('admLinkedin').trim(),
+        github: val('admGithub').trim()
+      },
+      projects: projects,
+      skills: skills,
+      contact: {
+        heading: val('admContactHeading').trim(),
+        subtext: val('admContactSubtext').trim()
+      }
+    };
+  }
+
+  function hideSaveMessages(){
+    saveSuccessMsg.classList.add('hidden');
+    saveErrorMsg.classList.add('hidden');
+  }
+
+  async function saveChanges(){
+    const saveBtn = document.getElementById('saveChangesBtn');
+    const newContent = buildContentFromForm();
+
+    hideSaveMessages();
+    saveBtn.disabled = true;
+    const originalLabel = saveBtn.textContent;
+    saveBtn.textContent = 'Saving…';
+
+    try {
+      const { error } = await supabaseClient
+        .from(TABLE_NAME)
+        .update({ content: newContent })
+        .eq('id', ROW_ID);
+
+      if (error) throw error;
+
+      siteContent = newContent;
+      renderSite(siteContent);
+      saveSuccessMsg.classList.remove('hidden');
+      setTimeout(() => saveSuccessMsg.classList.add('hidden'), 4000);
+    } catch (err) {
+      console.error('Failed to save changes to Supabase:', err);
+      saveErrorMsg.classList.remove('hidden');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalLabel;
+    }
+  }
+
+  document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  loadContent();
+</script>
+
+</body></html>
