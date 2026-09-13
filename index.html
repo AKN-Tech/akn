@@ -211,6 +211,38 @@
     height: 2px;
     background-color: var(--amber);
     display: block;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+
+  /* Hamburger -> X animation when menu is open */
+  .navbar-toggle.open span:nth-child(1){
+    transform: translateY(7px) rotate(45deg);
+  }
+  .navbar-toggle.open span:nth-child(2){
+    opacity: 0;
+  }
+  .navbar-toggle.open span:nth-child(3){
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Mobile menu backdrop */
+  .nav-backdrop{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .nav-backdrop.show{
+    display: block;
+    opacity: 1;
+  }
+
+  /* Prevent body scroll when mobile menu is open */
+  body.nav-open{
+    overflow: hidden;
   }
 
   /* ===== Hero ===== */
@@ -1096,7 +1128,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 90;
+    z-index: 90; /* sits below nav overlay (z=98/101) so menu/backdrop cover it */
     box-shadow: 0 6px 20px rgba(29, 158, 117, 0.35);
     transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
     text-decoration: none;
@@ -1168,27 +1200,42 @@
   @media (max-width: 820px){
     .navbar-links{
       position: fixed;
-      top: 64px;
+      top: 0;
       right: 0;
-      height: calc(100vh - 64px);
-      width: 60%;
-      max-width: 280px;
-      background-color: var(--panel);
-      border-left: 1px solid rgba(29,158,117,0.25);
+      height: 100vh;
+      width: 75%;
+      max-width: 300px;
+      background-color: #0f1516;
+      border-left: 1px solid rgba(29,158,117,0.35);
+      box-shadow: -8px 0 32px rgba(0,0,0,0.5);
       flex-direction: column;
       align-items: flex-start;
-      padding: 2.5rem;
-      gap: 2rem;
+      justify-content: center;
+      padding: 2rem 2rem 2rem 2.2rem;
+      gap: 1.8rem;
       transform: translateX(100%);
       transition: transform 0.3s ease;
+      z-index: 101;
     }
 
     .navbar-links.open{
       transform: translateX(0);
     }
 
+    .navbar-link{
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
     .navbar-toggle{
       display: flex;
+      z-index: 102;
+      position: relative;
+    }
+
+    .nav-backdrop{
+      z-index: 98;
     }
   }
 
@@ -1316,6 +1363,9 @@
       <li><a href="#contact" class="navbar-link">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- Mobile nav backdrop (outside nav so it can cover the full viewport) -->
+  <div class="nav-backdrop" id="navBackdrop"></div>
 
   <!-- Hero Section -->
   <header class="hero" id="hero">
@@ -1786,9 +1836,34 @@
   // Mobile menu toggle
   const navToggle = document.getElementById('navToggle');
   const navLinks = document.getElementById('navLinks');
+  const navBackdrop = document.getElementById('navBackdrop');
+
+  function openMobileMenu(){
+    navLinks.classList.add('open');
+    navToggle.classList.add('open');
+    navBackdrop.classList.add('show');
+    document.body.classList.add('nav-open');
+  }
+
+  function closeMobileMenu(){
+    navLinks.classList.remove('open');
+    navToggle.classList.remove('open');
+    navBackdrop.classList.remove('show');
+    document.body.classList.remove('nav-open');
+  }
+
   navToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
+    if (navLinks.classList.contains('open')) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
   });
+
+  // Close menu when tapping the backdrop
+  if (navBackdrop){
+    navBackdrop.addEventListener('click', closeMobileMenu);
+  }
 
   // Smooth scroll for all nav links (accounts for sticky navbar height)
   document.querySelectorAll('.navbar-link').forEach(link => {
@@ -1797,11 +1872,13 @@
       const targetEl = document.querySelector(targetId);
       if (targetEl) {
         e.preventDefault();
+        closeMobileMenu();
         const navHeight = navbar.offsetHeight;
         const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight + 1;
         window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+      } else {
+        closeMobileMenu();
       }
-      navLinks.classList.remove('open');
     });
   });
 
