@@ -719,9 +719,9 @@
 
   .skill-row{
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 300px 1fr;
     gap: 2rem;
-    align-items: baseline;
+    align-items: start;
     padding: 1.8rem 0;
   }
 
@@ -729,18 +729,88 @@
     border-bottom: 1px solid rgba(29, 158, 117, 0.3);
   }
 
+  .skill-left{
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .skill-head{
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .skill-icon{
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background-color: rgba(29, 158, 117, 0.12);
+    border: 1px solid rgba(29, 158, 117, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal);
+  }
+
+  .skill-icon svg{
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .skill-icon.icon-amber{
+    color: var(--amber);
+    background-color: rgba(250, 199, 117, 0.1);
+    border-color: rgba(250, 199, 117, 0.3);
+  }
+
   .skill-label{
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
     font-size: 1.05rem;
-    color: var(--amber);
+    color: var(--text);
     letter-spacing: 0.3px;
+  }
+
+  .skill-rating{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: calc(34px + 0.7rem); /* aligns under label text (next to icon) */
+  }
+
+  .skill-dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(234, 234, 230, 0.12);
+    border: 1px solid rgba(234, 234, 230, 0.18);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  .skill-dot.filled{
+    background-color: var(--teal);
+    border-color: var(--teal);
+    box-shadow: 0 0 8px rgba(29, 158, 117, 0.5);
+  }
+
+  .skill-dot.filled.amber{
+    background-color: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 8px rgba(250, 199, 117, 0.5);
   }
 
   .skill-desc{
     font-size: 1rem;
     line-height: 1.7;
     color: rgba(234, 234, 230, 0.85);
+    padding-top: 0.25rem;
   }
 
   .skill-desc strong{
@@ -1385,8 +1455,12 @@
   @media (max-width: 640px){
     .skill-row{
       grid-template-columns: 1fr;
-      gap: 0.5rem;
+      gap: 0.6rem;
       padding: 1.5rem 0;
+    }
+
+    .skill-rating{
+      padding-left: calc(34px + 0.7rem);
     }
 
     .footer-top{
@@ -1600,29 +1674,9 @@
         <hr class="section-divider">
       </div>
 
-      <!-- Skills List -->
-      <div class="skills-list">
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill1Label">Automation</span>
-          <p class="skill-desc" id="skill1Desc">n8n — building reliable, end-to-end automated workflows.</p>
-        </div>
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill2Label">AI / LLM Tools</span>
-          <p class="skill-desc" id="skill2Desc">Claude — API integrations, autonomous agents, and AI-powered apps.</p>
-        </div>
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill3Label">App Building</span>
-          <p class="skill-desc" id="skill3Desc">Lovable — no-code/low-code application development.</p>
-        </div>
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill4Label">Core Skill</span>
-          <p class="skill-desc" id="skill4Desc">Turning manual processes into automated systems.</p>
-        </div>
-
+      <!-- Skills List (rendered dynamically from the skills array in siteContent) -->
+      <div class="skills-list" id="skillsList">
+        <!-- Skill rows are injected here by renderSite() -->
       </div>
     </div>
   </section>
@@ -2187,18 +2241,112 @@
       });
     }
 
-    // Skills
-    (content.skills || []).forEach((s, idx) => {
-      const i = idx + 1;
-      setText('skill' + i + 'Label', s.label);
-      setText('skill' + i + 'Desc', s.desc);
-    });
+    // Skills — dynamically render rows with icon + dot rating
+    const skillsList = document.getElementById('skillsList');
+    if (skillsList) {
+      skillsList.innerHTML = '';
+      (content.skills || []).forEach((s) => {
+        const row = document.createElement('div');
+        row.className = 'skill-row';
+
+        // LEFT column: icon + label + dot rating
+        const left = document.createElement('div');
+        left.className = 'skill-left';
+
+        const head = document.createElement('div');
+        head.className = 'skill-head';
+
+        // Pick an icon (SVG) and accent color based on label keywords
+        const iconInfo = pickSkillIcon(s.label || '');
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'skill-icon' + (iconInfo.amber ? ' icon-amber' : '');
+        iconWrap.innerHTML = iconInfo.svg;
+        iconWrap.setAttribute('aria-hidden', 'true');
+        head.appendChild(iconWrap);
+
+        const labelEl = document.createElement('span');
+        labelEl.className = 'skill-label';
+        labelEl.textContent = s.label || '';
+        head.appendChild(labelEl);
+        left.appendChild(head);
+
+        // Dot rating (5 dots)
+        const rating = document.createElement('div');
+        rating.className = 'skill-rating';
+        const level = pickSkillLevel(s);
+        for (let d = 1; d <= 5; d++){
+          const dot = document.createElement('span');
+          dot.className = 'skill-dot';
+          if (d <= level) {
+            dot.classList.add('filled');
+            if (iconInfo.amber) dot.classList.add('amber');
+          }
+          rating.appendChild(dot);
+        }
+        left.appendChild(rating);
+
+        row.appendChild(left);
+
+        // RIGHT column: description
+        const descEl = document.createElement('p');
+        descEl.className = 'skill-desc';
+        descEl.textContent = s.desc || '';
+        row.appendChild(descEl);
+
+        skillsList.appendChild(row);
+      });
+    }
 
     // Contact
     if (content.contact) {
       setText('contactHeading', content.contact.heading);
       setText('contactSubtext', content.contact.subtext);
     }
+  }
+
+  // Pick a small line-style SVG icon for a skill based on keyword matching.
+  // Returns { svg, amber }. Falls back to a star/spark icon.
+  function pickSkillIcon(label){
+    const L = (label || '').toLowerCase();
+    // Automation — gears / workflow
+    if (/automat|workflow|n8n|zapier/i.test(L)){
+      return { amber: false, svg:
+        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>'
+      };
+    }
+    // AI / LLM — sparkles/brain
+    if (/ai|llm|claude|gpt|model|machine learning|ml/i.test(L)){
+      return { amber: false, svg:
+        '<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path><circle cx="12" cy="12" r="3.5"></circle></svg>'
+      };
+    }
+    // App Building — layout/code
+    if (/app|build|develop|code|frontend|backend|lovable|web/i.test(L)){
+      return { amber: false, svg:
+        '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18"></path><path d="M8 6.5h.01M11.5 6.5h.01M15 6.5h.01"></path><path d="m9 14-2 2 2 2M15 14l2 2-2 2"></path></svg>'
+      };
+    }
+    // Core skill / specialization — target/flag (amber to make it pop)
+    if (/core|special|focus|expert|master/i.test(L)){
+      return { amber: true, svg:
+        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle></svg>'
+      };
+    }
+    // Fallback — zap/bolt
+    return { amber: false, svg:
+      '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"></path></svg>'
+    };
+  }
+
+  // Pick a proficiency level (1-5 dots) based on keywords in label/desc.
+  // Defaults to a strong 4-5 so the indicator looks purposeful.
+  function pickSkillLevel(s){
+    const text = ((s.label || '') + ' ' + (s.desc || '')).toLowerCase();
+    if (/core|expert|master|special|turning manual/i.test(text)) return 5;
+    if (/building|reliable|end-to-end|api integrat|autonomou/i.test(text)) return 5;
+    if (/ai|llm|claude/i.test(text)) return 5;
+    if (/nocode|no-code|low-code|lovable/i.test(text)) return 4;
+    return 4;
   }
 
   // ============================================================
