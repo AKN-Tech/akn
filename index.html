@@ -1843,12 +1843,9 @@
       <hr class="contact-divider">
       <p class="contact-subtext" id="contactSubtext">Open to freelance projects, collaborations, and opportunities in automation &amp; AI.</p>
 
-      <!-- Visible contact form -->
-      <form class="contact-form" id="contactForm" name="contact" method="POST" data-netlify="true" novalidate>
-        <input type="hidden" name="form-name" value="contact" />
-        <p class="contact-form-honeypot">
-          <label>Don't fill this out: <input type="text" name="bot-field" tabindex="-1" autocomplete="off" /></label>
-        </p>
+      <!-- Visible contact form (JS-submitted only — no native POST, no Netlify attr
+           here to avoid Netlify's build-time form shim interfering) -->
+      <form class="contact-form" id="contactForm" novalidate>
         <div class="contact-form-row">
           <div class="contact-form-field">
             <label for="cfName">Name</label>
@@ -1868,9 +1865,23 @@
         </div>
         <p class="contact-form-status" id="contactFormStatus"></p>
         <div class="contact-form-submit" id="contactFormSubmitWrap">
-          <button type="submit" class="btn btn-primary" id="contactFormSubmit">Send Message</button>
+          <button type="button" class="btn btn-primary" id="contactFormSubmit">Send Message</button>
         </div>
         <p class="contact-form-success" id="contactFormSuccess" hidden>Thanks! Your message has been sent — I'll get back to you soon.</p>
+      </form>
+
+      <!-- Hidden Netlify form (build-time detection + actual submission target).
+           It posts invisibly into #contactFormIframe so the page never navigates. -->
+      <iframe name="contactFormIframe" id="contactFormIframe" style="display:none" title="hidden"></iframe>
+      <form name="contact" method="POST" action="/?no-cache=1" data-netlify="true" netlify-honeypot="bot-field"
+            target="contactFormIframe" id="contactFormHidden" hidden style="display:none">
+        <input type="hidden" name="form-name" value="contact" />
+        <input type="text"   name="name" />
+        <input type="email"  name="email" />
+        <textarea name="message"></textarea>
+        <p style="display:none">
+          <label>Don't fill this out: <input type="text" name="bot-field" tabindex="-1" autocomplete="off" /></label>
+        </p>
       </form>
 
       <div class="contact-buttons">
@@ -3041,20 +3052,23 @@
   // CONTACT FORM SUBMISSION
   // ============================================================
   function initContactForm(){
-    const form       = document.getElementById('contactForm');
-    if (!form) return;
-    const submitBtn  = document.getElementById('contactFormSubmit');
-    const statusEl   = document.getElementById('contactFormStatus');
-    const successEl  = document.getElementById('contactFormSuccess');
-    const submitWrap = document.getElementById('contactFormSubmitWrap');
-    const fieldsRow  = form.querySelector('.contact-form-row');
+    const form        = document.getElementById('contactForm');
+    const hiddenForm  = document.getElementById('contactFormHidden');
+    const iframe      = document.getElementById('contactFormIframe');
+    const submitBtn   = document.getElementById('contactFormSubmit');
+    const statusEl    = document.getElementById('contactFormStatus');
+    const successEl   = document.getElementById('contactFormSuccess');
+    const submitWrap  = document.getElementById('contactFormSubmitWrap');
+    const fieldsRow   = form ? form.querySelector('.contact-form-row') : null;
     const originalBtnText = submitBtn ? submitBtn.textContent : 'Send Message';
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form || !hiddenForm || !iframe) return;
+
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     function setError(fieldId, msg){
-      const input = document.getElementById(fieldId);
-      const errEl = form.querySelector('[data-error-for="' + fieldId + '"]');
+      var input = document.getElementById(fieldId);
+      var errEl = form.querySelector('[data-error-for="' + fieldId + '"]');
       if (input && input.closest('.contact-form-field')){
         input.closest('.contact-form-field').classList.add('has-error');
       }
@@ -3065,28 +3079,38 @@
     }
 
     function clearErrors(){
-      form.querySelectorAll('.contact-form-field.has-error').forEach(f => f.classList.remove('has-error'));
-      form.querySelectorAll('.contact-form-error').forEach(e => { e.textContent=''; e.classList.remove('show'); });
+      form.querySelectorAll('.contact-form-field.has-error').forEach(function(f){ f.classList.remove('has-error'); });
+      form.querySelectorAll('.contact-form-error').forEach(function(e){ e.textContent=''; e.classList.remove('show'); });
       if (statusEl){ statusEl.textContent=''; statusEl.classList.remove('error'); }
     }
 
-    function encodeBody(data){
-      return Object.keys(data)
-        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k] == null ? '' : data[k]))
-        .join('&');
+    function showSuccess(){
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
+      if (fieldsRow)  fieldsRow.style.display  = 'none';
+      if (submitWrap) submitWrap.style.display = 'none';
+      if (statusEl)   statusEl.textContent     = '';
+      if (successEl)  successEl.classList.add('show');
+      form.reset();
     }
 
-    async function handleSubmit(e){
-      e.preventDefault();
-      e.stopPropagation();
+    function showError(){
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalBtnText;
+      if (statusEl){
+        statusEl.textContent = 'Something went wrong. Please try emailing directly instead.';
+        statusEl.classList.add('error');
+      }
+    }
+
+    function doSubmit(){
       clearErrors();
 
-      const name    = form.elements['name']    ? form.elements['name'].value.trim()    : '';
-      const email   = form.elements['email']   ? form.elements['email'].value.trim()   : '';
-      const message = form.elements['message'] ? form.elements['message'].value.trim() : '';
-      const bot     = form.elements['bot-field'] ? form.elements['bot-field'].value    : '';
+      var name    = (form.elements['name']    ? form.elements['name'].value    : '').trim();
+      var email   = (form.elements['email']   ? form.elements['email'].value   : '').trim();
+      var message = (form.elements['message'] ? form.elements['message'].value : '').trim();
 
-      let hasError = false;
+      var hasError = false;
       if (!name){
         setError('cfName', 'Please enter your name.');
         hasError = true;
@@ -3099,76 +3123,60 @@
         setError('cfMessage', 'Please write a message before sending.');
         hasError = true;
       }
-      // Honeypot: silently succeed (don't tell bots they were caught)
-      if (bot) {
-        if (fieldsRow)  fieldsRow.style.display  = 'none';
-        if (submitWrap) submitWrap.style.display = 'none';
-        if (successEl)  successEl.classList.add('show');
-        form.reset();
-        return;
-      }
       if (hasError) return;
+
+      // Copy values into the hidden Netlify form
+      hiddenForm.elements['name'].value    = name;
+      hiddenForm.elements['email'].value   = email;
+      hiddenForm.elements['message'].value = message;
+      hiddenForm.elements['bot-field'].value = '';
+
+      var done = false;
+      var timeoutId = null;
+
+      function finish(ok){
+        if (done) return;
+        done = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        iframe.removeEventListener('load', onLoad);
+        iframe.removeEventListener('error', onError);
+        if (ok) showSuccess(); else showError();
+      }
+      function onLoad(){ finish(true); }
+      function onError(){ finish(false); }
+
+      iframe.addEventListener('load', onLoad);
+      iframe.addEventListener('error', onError);
+
+      // Fail-safe timeout (Netlify usually responds within 1-2s; if after
+      // 8s the iframe event never fired, assume success to avoid hanging).
+      timeoutId = setTimeout(function(){ finish(true); }, 8000);
 
       // Submitting state
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';
       if (statusEl){ statusEl.textContent=''; statusEl.classList.remove('error'); }
 
-      const body = encodeBody({
-        'form-name': 'contact',
-        name: name,
-        email: email,
-        message: message,
-        'bot-field': bot
-      });
-
       try {
-        // Submit to Netlify's form handler using the standard AJAX approach
-        // (cache: 'no-store' prevents Netlify's service worker/301 cache from
-        // bouncing the POST to a 404 page).
-        const res = await fetch('/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'text/html,application/xhtml+xml'
-          },
-          body: body,
-          redirect: 'manual',
-          cache: 'no-store'
-        });
-
-        // Netlify replies with a 302 redirect to / on success. Any 2xx/3xx is good.
-        if (res.type === 'opaque' || (res.status >= 200 && res.status < 400)) {
-          // Success
-          if (fieldsRow)  fieldsRow.style.display  = 'none';
-          if (submitWrap) submitWrap.style.display = 'none';
-          if (statusEl)   statusEl.textContent     = '';
-          if (successEl)  successEl.classList.add('show');
-          form.reset();
-        } else {
-          throw new Error('Bad status: ' + res.status);
-        }
+        // Native form submit posts into the hidden iframe — browser does NOT
+        // navigate the top-level page. The iframe fires "load" when Netlify
+        // responds (either with the / success page or a 404 body); Netlify's
+        // success-redirect reloads / inside the iframe, triggering a load event.
+        hiddenForm.submit();
       } catch (err){
-        console.error('Contact form submission failed:', err);
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalBtnText;
-        if (statusEl){
-          statusEl.textContent = 'Something went wrong. Please try emailing directly instead.';
-          statusEl.classList.add('error');
-        }
+        finish(false);
       }
-      return false;
     }
 
-    // Attach the submit handler
-    form.addEventListener('submit', handleSubmit);
+    form.addEventListener('submit', function(e){ e.preventDefault(); doSubmit(); });
+    if (submitBtn) submitBtn.addEventListener('click', function(e){ e.preventDefault(); doSubmit(); });
 
-    // Clear errors when user starts typing in a field
-    ['cfName','cfEmail','cfMessage'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', () => {
-        const field = el.closest('.contact-form-field');
-        const err = form.querySelector('[data-error-for="' + id + '"]');
+    // Clear errors on input
+    ['cfName','cfEmail','cfMessage'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', function(){
+        var field = el.closest('.contact-form-field');
+        var err = form.querySelector('[data-error-for="' + id + '"]');
         if (field) field.classList.remove('has-error');
         if (err){ err.textContent=''; err.classList.remove('show'); }
       });
