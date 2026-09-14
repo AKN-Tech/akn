@@ -1647,7 +1647,7 @@
   <!-- Footer -->
   <footer class="site-footer fade-section">
     <div class="footer-top">
-      <p class="footer-brand"><span>AKN</span> — Automation &amp; AI Builder</p>
+      <p class="footer-brand" id="footerBrand"><span>AKN</span> — Automation &amp; AI Builder</p>
 
       <div class="footer-socials">
         <a href="https://linkedin.com/in/" target="_blank" rel="noopener noreferrer" class="footer-social-link" id="footerLinkedin" aria-label="LinkedIn">
@@ -2052,6 +2052,12 @@
       setText('heroSubtitle', content.hero.subtitle);
       setText('heroByline', content.hero.byline);
       setText('heroTagline', content.hero.tagline);
+
+      // Keep footer brand in sync: "AKN — <hero.subtitle>"
+      const footerBrand = document.getElementById('footerBrand');
+      if (footerBrand) {
+        footerBrand.innerHTML = '<span>AKN</span> — ' + (content.hero.subtitle || 'Automation &amp; AI Builder');
+      }
     }
 
     // About
