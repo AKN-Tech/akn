@@ -2,7 +2,23 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AKN — Automation &amp; AI Builder</title>
+<title>AKN — AI Builder &amp; Automation</title>
+<meta name="description" content="AKN — Arslan Khan Niazi builds AI-powered software using Lovable, Bolt, Manus, and Claude, plus automation with n8n. Portfolio of real projects across real estate, retail, education, and finance.">
+<meta name="author" content="Arslan Khan Niazi">
+<meta name="theme-color" content="#0B0F0E">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://akn-portfolio.netlify.app/">
+<meta property="og:title" content="AKN — AI Builder &amp; Automation">
+<meta property="og:description" content="I build software with AI, not just code. Portfolio of AI-powered apps and automation projects by Arslan Khan Niazi.">
+<meta property="og:site_name" content="AKN">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:url" content="https://akn-portfolio.netlify.app/">
+<meta name="twitter:title" content="AKN — AI Builder &amp; Automation">
+<meta name="twitter:description" content="I build software with AI, not just code.">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1553,8 +1569,8 @@
 </head>
 <body>
 
-<!-- ==================== LOADING OVERLAY ==================== -->
-<div id="loadingOverlay">
+<!-- ==================== LOADING OVERLAY (hidden by default — content renders immediately) ==================== -->
+<div id="loadingOverlay" class="hide">
   <div class="loading-spinner"></div>
   <p class="loading-text">Loading site content…</p>
 </div>
@@ -1601,8 +1617,8 @@
 
     <div class="hero-content">
       <span class="hero-tag">System Online</span>
-      <h1 class="hero-heading" id="heroTitle">AKN</h1>
-      <h2 class="hero-subheading" id="heroSubtitle">Automation &amp; AI Builder</h2>
+      <div class="hero-heading" id="heroTitle">AKN</div>
+      <h1 class="hero-subheading" id="heroSubtitle">Automation &amp; AI Builder</h1>
       <p class="hero-byline">by <span id="heroByline">Arslan Khan Niazi</span></p>
       <p class="hero-tagline" id="heroTagline">I automate your busywork so you can focus on growth.</p>
 
@@ -2365,6 +2381,13 @@
   }
 
   async function loadContent(){
+    // Render the built-in default content immediately so the page is never
+    // blocked behind a spinner. The Supabase fetch runs in the background
+    // and updates the DOM in place if/when it succeeds.
+    siteContent = DEFAULT_CONTENT;
+    renderSite(siteContent);
+    hideLoadingOverlay();
+
     try {
       const { data, error } = await supabaseClient
         .from(TABLE_NAME)
@@ -2376,15 +2399,14 @@
         throw error || new Error('No content returned from Supabase.');
       }
 
+      // Only re-render if the fetched content differs meaningfully from
+      // what we already painted (avoids a visible flicker on first paint).
       siteContent = data.content;
+      renderSite(siteContent);
     } catch (err) {
-      console.warn('Falling back to default content — could not load from Supabase:', err);
-      siteContent = DEFAULT_CONTENT;
+      console.warn('Could not load from Supabase — staying on default content:', err);
       showFetchWarning();
     }
-
-    renderSite(siteContent);
-    hideLoadingOverlay();
   }
 
   // ============================================================
