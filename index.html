@@ -583,7 +583,7 @@
 
   .projects-grid{
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
     gap: 2rem;
   }
 
@@ -1098,6 +1098,45 @@
     text-align: center;
   }
 
+  .admin-btn--outline{
+    background-color: transparent;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+    padding: 10px 18px;
+    font-size: 0.82rem;
+    align-self: flex-start;
+  }
+  .admin-btn--outline:hover{
+    background-color: rgba(29, 158, 117, 0.1);
+    box-shadow: none;
+  }
+
+  .admin-project-remove{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: 1px solid rgba(255,138,128,0.35);
+    color: #ff8a80;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .admin-project-remove:hover{
+    background-color: rgba(255,138,128,0.1);
+    border-color: #ff8a80;
+  }
+
+  .admin-project-empty{
+    font-size: 0.85rem;
+    color: rgba(234, 234, 230, 0.5);
+    padding: 1rem 0;
+    font-style: italic;
+  }
+
   .admin-link-btn{
     background: none;
     border: none;
@@ -1134,10 +1173,11 @@
   }
 
   .admin-project-card{
+    position: relative;
     background-color: rgba(29, 158, 117, 0.04);
     border: 1px solid rgba(29, 158, 117, 0.2);
     border-radius: 10px;
-    padding: 1.4rem;
+    padding: 1.4rem 1.4rem 1.4rem 1.4rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -1532,57 +1572,9 @@
         <p class="projects-subtext">Automation and AI systems built to remove busywork and streamline operations.</p>
       </div>
 
-      <!-- Projects Grid -->
-      <div class="projects-grid">
-
-        <!-- Project Card 1 -->
-        <div class="project-card" id="project1">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project1Name">Real Estate Website</h3>
-            <span class="project-status" id="project1Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project1Problem">Property inquiries manually handled by agents are slow and inconsistent.</p>
-          <div class="project-tags" id="project1Tags"><span class="project-tag">Claude</span><span class="project-tag">n8n</span></div>
-          <p class="project-result" id="project1Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project1Link">View Details →</a>
-        </div>
-
-        <!-- Project Card 2 -->
-        <div class="project-card" id="project2">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project2Name">Inventory Management System</h3>
-            <span class="project-status" id="project2Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project2Problem">Manual stock tracking causes stockouts and overstock.</p>
-          <div class="project-tags" id="project2Tags"><span class="project-tag">n8n</span><span class="project-tag">Lovable</span></div>
-          <p class="project-result" id="project2Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project2Link">View Details →</a>
-        </div>
-
-        <!-- Project Card 3 -->
-        <div class="project-card" id="project3">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project3Name">Education Attendance System</h3>
-            <span class="project-status" id="project3Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project3Problem">Manual/paper attendance is slow and error-prone.</p>
-          <div class="project-tags" id="project3Tags"><span class="project-tag">n8n</span><span class="project-tag">Lovable</span></div>
-          <p class="project-result" id="project3Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project3Link">View Details →</a>
-        </div>
-
-        <!-- Project Card 4 -->
-        <div class="project-card" id="project4">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project4Name">AI Finance / Money Tracker</h3>
-            <span class="project-status" id="project4Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project4Problem">Tracking expenses manually is tedious and inconsistent.</p>
-          <div class="project-tags" id="project4Tags"><span class="project-tag">Claude</span><span class="project-tag">n8n</span></div>
-          <p class="project-result" id="project4Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project4Link">View Details →</a>
-        </div>
-
+      <!-- Projects Grid (rendered dynamically from the projects array in siteContent) -->
+      <div class="projects-grid" id="projectsGrid">
+        <!-- Project cards are injected here by renderSite() -->
       </div>
     </div>
   </section>
@@ -1769,74 +1761,14 @@
         </div>
       </div>
 
-      <!-- Projects Fields -->
-      <div class="admin-section">
+      <!-- Projects Fields (dynamic list rendered by JS) -->
+      <div class="admin-section" id="admProjectsSection">
         <h3 class="admin-section-title">Projects</h3>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 1</span>
-          <div class="admin-field"><label for="admP1Name">Name</label><input type="text" id="admP1Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP1Status">Status</label>
-            <select id="admP1Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP1Problem">Problem</label><textarea id="admP1Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP1Tools">Tools (comma-separated)</label><input type="text" id="admP1Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP1Result">Result</label><input type="text" id="admP1Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP1Link">Link</label><input type="text" id="admP1Link" class="admin-input"></div>
+        <div id="admProjectsList">
+          <!-- Project cards are injected here by renderAdminProjects() -->
         </div>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 2</span>
-          <div class="admin-field"><label for="admP2Name">Name</label><input type="text" id="admP2Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP2Status">Status</label>
-            <select id="admP2Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP2Problem">Problem</label><textarea id="admP2Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP2Tools">Tools (comma-separated)</label><input type="text" id="admP2Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP2Result">Result</label><input type="text" id="admP2Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP2Link">Link</label><input type="text" id="admP2Link" class="admin-input"></div>
-        </div>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 3</span>
-          <div class="admin-field"><label for="admP3Name">Name</label><input type="text" id="admP3Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP3Status">Status</label>
-            <select id="admP3Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP3Problem">Problem</label><textarea id="admP3Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP3Tools">Tools (comma-separated)</label><input type="text" id="admP3Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP3Result">Result</label><input type="text" id="admP3Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP3Link">Link</label><input type="text" id="admP3Link" class="admin-input"></div>
-        </div>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 4</span>
-          <div class="admin-field"><label for="admP4Name">Name</label><input type="text" id="admP4Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP4Status">Status</label>
-            <select id="admP4Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP4Problem">Problem</label><textarea id="admP4Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP4Tools">Tools (comma-separated)</label><input type="text" id="admP4Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP4Result">Result</label><input type="text" id="admP4Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP4Link">Link</label><input type="text" id="admP4Link" class="admin-input"></div>
-        </div>
-
+        <button type="button" id="admAddProjectBtn" class="admin-btn admin-btn--outline">+ Add Project</button>
+        <p class="admin-field-hint">Add as many projects as you like. Each card has a Remove button to delete it. Don't forget to click Save Changes after editing.</p>
       </div>
 
       <!-- Skills Fields -->
@@ -2168,22 +2100,68 @@
       }
     }
 
-    // Projects
-    (content.projects || []).forEach((p, idx) => {
-      const i = idx + 1;
-      setText('project' + i + 'Name', p.name);
+    // Projects — dynamically render a card for every project in the array
+    const projectsGrid = document.getElementById('projectsGrid');
+    if (projectsGrid) {
+      projectsGrid.innerHTML = '';
+      (content.projects || []).forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
 
-      const statusEl = document.getElementById('project' + i + 'Status');
-      if (statusEl) {
-        statusEl.textContent = p.status;
-        statusEl.classList.toggle('status-live', p.status === 'Live Demo');
-      }
+        // Header: name + status badge
+        const header = document.createElement('div');
+        header.className = 'project-card-header';
 
-      setText('project' + i + 'Problem', p.problem);
-      renderTagList('project' + i + 'Tags', p.tools, 'project-tag');
-      setText('project' + i + 'Result', 'Result: ' + (p.result || ''));
-      setHref('project' + i + 'Link', p.link);
-    });
+        const nameEl = document.createElement('h3');
+        nameEl.className = 'project-name';
+        nameEl.textContent = p.name || '';
+        header.appendChild(nameEl);
+
+        const statusEl = document.createElement('span');
+        statusEl.className = 'project-status';
+        statusEl.textContent = p.status || 'In Development';
+        if (p.status === 'Live Demo') statusEl.classList.add('status-live');
+        header.appendChild(statusEl);
+        card.appendChild(header);
+
+        // Problem
+        const problemEl = document.createElement('p');
+        problemEl.className = 'project-problem';
+        problemEl.textContent = p.problem || '';
+        card.appendChild(problemEl);
+
+        // Tags (tools)
+        const tagsEl = document.createElement('div');
+        tagsEl.className = 'project-tags';
+        (p.tools || []).forEach(t => {
+          if (!t) return;
+          const s = document.createElement('span');
+          s.className = 'project-tag';
+          s.textContent = t;
+          tagsEl.appendChild(s);
+        });
+        card.appendChild(tagsEl);
+
+        // Result
+        const resultEl = document.createElement('p');
+        resultEl.className = 'project-result';
+        resultEl.textContent = 'Result: ' + (p.result || '');
+        card.appendChild(resultEl);
+
+        // Link
+        const linkEl = document.createElement('a');
+        linkEl.className = 'project-link';
+        linkEl.href = p.link || '#';
+        linkEl.textContent = 'View Details →';
+        if (p.link && p.link !== '#') {
+          linkEl.target = '_blank';
+          linkEl.rel = 'noopener noreferrer';
+        }
+        card.appendChild(linkEl);
+
+        projectsGrid.appendChild(card);
+      });
+    }
 
     // Skills
     (content.skills || []).forEach((s, idx) => {
@@ -2307,6 +2285,161 @@
   function val(id){ return document.getElementById(id).value; }
   function setVal(id, v){ document.getElementById(id).value = v !== undefined && v !== null ? v : ''; }
 
+  // ============================================================
+  // DYNAMIC ADMIN PROJECTS LIST
+  // ============================================================
+  // In-memory working copy while the admin form is open. Each project
+  // object has { name, status, problem, tools, result, link }. The form
+  // is re-rendered from this array whenever a project is added/removed,
+  // so field names don't collide or go stale.
+  let adminProjects = [];
+
+  function emptyProject(){
+    return { name: '', status: 'In Development', problem: '', tools: [], result: '', link: '' };
+  }
+
+  function projectFieldId(prefix, idx, suffix){
+    return `${prefix}P${idx}${suffix}`;
+  }
+
+  function renderAdminProjects(projects){
+    adminProjects = (projects || []).map(p => ({
+      name: p.name || '',
+      status: p.status || 'In Development',
+      problem: p.problem || '',
+      tools: Array.isArray(p.tools) ? p.tools.slice() : [],
+      result: p.result || '',
+      link: p.link || ''
+    }));
+
+    const list = document.getElementById('admProjectsList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (adminProjects.length === 0){
+      const empty = document.createElement('p');
+      empty.className = 'admin-project-empty';
+      empty.textContent = 'No projects yet. Click "+ Add Project" to create your first one.';
+      list.appendChild(empty);
+      return;
+    }
+
+    adminProjects.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.className = 'admin-project-card';
+      card.dataset.index = String(idx);
+
+      // Title + remove button
+      const title = document.createElement('span');
+      title.className = 'admin-project-card-title';
+      title.textContent = 'Project ' + (idx + 1);
+      card.appendChild(title);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'admin-project-remove';
+      removeBtn.textContent = 'Remove';
+      removeBtn.addEventListener('click', () => removeAdminProject(idx));
+      card.appendChild(removeBtn);
+
+      // Name
+      card.appendChild(makeField('text',   `admP${idx}Name`,    'Name',           p.name));
+      // Status
+      const statusField = document.createElement('div');
+      statusField.className = 'admin-field';
+      const statusLabel = document.createElement('label');
+      statusLabel.setAttribute('for', `admP${idx}Status`);
+      statusLabel.textContent = 'Status';
+      statusField.appendChild(statusLabel);
+      const statusSel = document.createElement('select');
+      statusSel.id = `admP${idx}Status`;
+      statusSel.className = 'admin-select';
+      ['In Development', 'Live Demo'].forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt; o.textContent = opt;
+        if (opt === p.status) o.selected = true;
+        statusSel.appendChild(o);
+      });
+      statusField.appendChild(statusSel);
+      card.appendChild(statusField);
+      // Problem
+      card.appendChild(makeField('textarea', `admP${idx}Problem`, 'Problem',             p.problem));
+      // Tools
+      card.appendChild(makeField('text',     `admP${idx}Tools`,   'Tools (comma-separated)', (p.tools || []).join(', ')));
+      // Result
+      card.appendChild(makeField('text',     `admP${idx}Result`,  'Result',              p.result));
+      // Link
+      card.appendChild(makeField('text',     `admP${idx}Link`,    'Link',                p.link));
+
+      list.appendChild(card);
+    });
+  }
+
+  function makeField(type, id, labelText, value){
+    const wrap = document.createElement('div');
+    wrap.className = 'admin-field';
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = labelText;
+    wrap.appendChild(label);
+    let input;
+    if (type === 'textarea'){
+      input = document.createElement('textarea');
+      input.className = 'admin-textarea';
+      input.textContent = value || '';
+    } else {
+      input = document.createElement('input');
+      input.type = type;
+      input.className = 'admin-input';
+      input.value = value || '';
+    }
+    input.id = id;
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function addAdminProject(){
+    // Pull whatever the user has typed into the current form into
+    // adminProjects first, so we don't lose in-progress edits.
+    syncAdminProjectsFromForm();
+    adminProjects.push(emptyProject());
+    renderAdminProjects(adminProjects);
+    // Scroll the new card into view so the user sees it.
+    const list = document.getElementById('admProjectsList');
+    if (list && list.lastElementChild) {
+      list.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function removeAdminProject(idx){
+    if (!confirm('Remove this project? This cannot be undone (until you click Save Changes, you can still cancel by leaving the page without saving).')) return;
+    syncAdminProjectsFromForm();
+    adminProjects.splice(idx, 1);
+    renderAdminProjects(adminProjects);
+  }
+
+  // Read the currently rendered admin project form fields back into
+  // adminProjects so add/remove don't discard in-progress edits.
+  function syncAdminProjectsFromForm(){
+    adminProjects.forEach((_, idx) => {
+      const nameEl    = document.getElementById(`admP${idx}Name`);
+      const statusEl  = document.getElementById(`admP${idx}Status`);
+      const probEl    = document.getElementById(`admP${idx}Problem`);
+      const toolsEl   = document.getElementById(`admP${idx}Tools`);
+      const resultEl  = document.getElementById(`admP${idx}Result`);
+      const linkEl    = document.getElementById(`admP${idx}Link`);
+      if (!nameEl) return; // card not currently rendered / mismatch
+      adminProjects[idx] = {
+        name: nameEl.value,
+        status: statusEl ? statusEl.value : 'In Development',
+        problem: probEl ? probEl.value : '',
+        tools: toolsEl ? toolsEl.value.split(',').map(t => t.trim()).filter(t => t.length > 0) : [],
+        result: resultEl ? resultEl.value : '',
+        link: linkEl ? linkEl.value : ''
+      };
+    });
+  }
+
   function populateAdminForm(){
     const c = siteContent || DEFAULT_CONTENT;
 
@@ -2351,16 +2484,8 @@
       if (clearBtn) clearBtn.classList.add('hidden');
     }
 
-    // Projects
-    (c.projects || []).forEach((p, idx) => {
-      const i = idx + 1;
-      setVal('admP' + i + 'Name', p.name);
-      setVal('admP' + i + 'Status', p.status);
-      setVal('admP' + i + 'Problem', p.problem);
-      setVal('admP' + i + 'Tools', (p.tools || []).join(', '));
-      setVal('admP' + i + 'Result', p.result);
-      setVal('admP' + i + 'Link', p.link);
-    });
+    // Projects (dynamic list)
+    renderAdminProjects(c.projects || []);
 
     // Skills
     (c.skills || []).forEach((s, idx) => {
@@ -2377,17 +2502,18 @@
   function buildContentFromForm(){
     const previous = siteContent || DEFAULT_CONTENT;
 
-    const projects = [];
-    for (let i = 1; i <= 4; i++){
-      projects.push({
-        name: val('admP' + i + 'Name').trim(),
-        status: val('admP' + i + 'Status'),
-        problem: val('admP' + i + 'Problem').trim(),
-        tools: val('admP' + i + 'Tools').split(',').map(t => t.trim()).filter(t => t.length > 0),
-        result: val('admP' + i + 'Result').trim(),
-        link: val('admP' + i + 'Link').trim() || '#'
-      });
-    }
+    // Pull latest values from the dynamic project form fields
+    syncAdminProjectsFromForm();
+    const projects = adminProjects.map(p => ({
+      name: (p.name || '').trim(),
+      status: p.status || 'In Development',
+      problem: (p.problem || '').trim(),
+      tools: Array.isArray(p.tools)
+        ? p.tools.map(t => (t || '').trim()).filter(t => t.length > 0)
+        : [],
+      result: (p.result || '').trim(),
+      link: (p.link || '').trim() || '#'
+    })).filter(p => p.name.length > 0 || p.problem.length > 0); // drop fully-empty cards
 
     const skills = [];
     for (let i = 1; i <= 4; i++){
@@ -2467,6 +2593,10 @@
   }
 
   document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+
+  // Dynamic "Add Project" button
+  const addProjectBtn = document.getElementById('admAddProjectBtn');
+  if (addProjectBtn) addProjectBtn.addEventListener('click', addAdminProject);
 
   // ============================================================
   // PROFILE PHOTO UPLOAD (Admin)
