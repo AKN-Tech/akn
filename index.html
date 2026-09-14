@@ -626,34 +626,28 @@
     font-size: 0.68rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    /* Default / In Development — dull muted grey */
     color: rgba(234, 234, 230, 0.55);
-    border: 1px solid rgba(234, 234, 230, 0.2);
-    background-color: rgba(234, 234, 230, 0.05);
+    border: 1px solid rgba(234, 234, 230, 0.18);
+    background-color: rgba(234, 234, 230, 0.06);
     padding: 4px 10px;
     border-radius: 999px;
     white-space: nowrap;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
   }
 
-  /* Green — shipped / live */
+  /* Green — Live Demo / Ready / Live */
   .project-status.status-live{
-    color: #5EE2A0;
-    border-color: rgba(94, 226, 160, 0.55);
-    background-color: rgba(94, 226, 160, 0.1);
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.55);
+    background-color: rgba(74, 222, 128, 0.14);
   }
 
-  /* Amber/yellow — almost shipped */
+  /* Yellow/Amber — Almost Ready / Coming Soon */
   .project-status.status-soon{
-    color: var(--amber);
-    border-color: rgba(250, 199, 117, 0.55);
-    background-color: rgba(250, 199, 117, 0.09);
-  }
-
-  /* Muted teal default kept for backward compat but "In Development"
-     now uses the plain grey variant above. */
-  .project-status.status-dev{
-    color: var(--teal);
-    border-color: rgba(29, 158, 117, 0.55);
-    background-color: rgba(29, 158, 117, 0.07);
+    color: #facc15;
+    border-color: rgba(250, 204, 21, 0.55);
+    background-color: rgba(250, 204, 21, 0.13);
   }
 
   .project-problem{
@@ -2134,6 +2128,7 @@
         header.appendChild(nameEl);
 
         const statusEl = document.createElement('span');
+        // Start with the base (grey) class only
         statusEl.className = 'project-status';
         const statusText = (p.status || 'In Development').trim();
         statusEl.textContent = statusText;
@@ -2142,9 +2137,8 @@
           statusEl.classList.add('status-live');
         } else if (s === 'almost ready' || s === 'coming soon' || s === 'nearly done') {
           statusEl.classList.add('status-soon');
-        } else if (s === 'in development') {
-          statusEl.classList.add('status-dev');
         }
+        // Anything else (including "In Development") keeps the default grey style
         header.appendChild(statusEl);
         card.appendChild(header);
 
