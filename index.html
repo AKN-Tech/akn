@@ -626,18 +626,34 @@
     font-size: 0.68rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--teal);
-    border: 1px solid rgba(29, 158, 117, 0.55);
-    background-color: rgba(29, 158, 117, 0.07);
+    color: rgba(234, 234, 230, 0.55);
+    border: 1px solid rgba(234, 234, 230, 0.2);
+    background-color: rgba(234, 234, 230, 0.05);
     padding: 4px 10px;
     border-radius: 999px;
     white-space: nowrap;
   }
 
+  /* Green — shipped / live */
   .project-status.status-live{
+    color: #5EE2A0;
+    border-color: rgba(94, 226, 160, 0.55);
+    background-color: rgba(94, 226, 160, 0.1);
+  }
+
+  /* Amber/yellow — almost shipped */
+  .project-status.status-soon{
     color: var(--amber);
     border-color: rgba(250, 199, 117, 0.55);
-    background-color: rgba(250, 199, 117, 0.07);
+    background-color: rgba(250, 199, 117, 0.09);
+  }
+
+  /* Muted teal default kept for backward compat but "In Development"
+     now uses the plain grey variant above. */
+  .project-status.status-dev{
+    color: var(--teal);
+    border-color: rgba(29, 158, 117, 0.55);
+    background-color: rgba(29, 158, 117, 0.07);
   }
 
   .project-problem{
@@ -2119,8 +2135,16 @@
 
         const statusEl = document.createElement('span');
         statusEl.className = 'project-status';
-        statusEl.textContent = p.status || 'In Development';
-        if (p.status === 'Live Demo') statusEl.classList.add('status-live');
+        const statusText = (p.status || 'In Development').trim();
+        statusEl.textContent = statusText;
+        const s = statusText.toLowerCase();
+        if (s === 'live demo' || s === 'ready' || s === 'live') {
+          statusEl.classList.add('status-live');
+        } else if (s === 'almost ready' || s === 'coming soon' || s === 'nearly done') {
+          statusEl.classList.add('status-soon');
+        } else if (s === 'in development') {
+          statusEl.classList.add('status-dev');
+        }
         header.appendChild(statusEl);
         card.appendChild(header);
 
@@ -2354,10 +2378,19 @@
       const statusSel = document.createElement('select');
       statusSel.id = `admP${idx}Status`;
       statusSel.className = 'admin-select';
-      ['In Development', 'Live Demo'].forEach(opt => {
+      const statusOptions = ['In Development', 'Almost Ready', 'Ready', 'Live Demo'];
+      // Preserve custom status text if the saved value isn't one of our presets
+      const currentStatus = p.status || 'In Development';
+      if (!statusOptions.includes(currentStatus)) {
+        const o = document.createElement('option');
+        o.value = currentStatus; o.textContent = currentStatus;
+        o.selected = true;
+        statusSel.appendChild(o);
+      }
+      statusOptions.forEach(opt => {
         const o = document.createElement('option');
         o.value = opt; o.textContent = opt;
-        if (opt === p.status) o.selected = true;
+        if (opt === currentStatus) o.selected = true;
         statusSel.appendChild(o);
       });
       statusField.appendChild(statusSel);
