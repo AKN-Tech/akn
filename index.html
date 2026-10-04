@@ -140,16 +140,26 @@
     opacity: 1;
   }
 
-  /* ===== Fade-in on scroll ===== */
+  /* ===== Fade-in on scroll (subtle) ===== */
   .fade-section{
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    will-change: opacity, transform;
   }
 
   .fade-section.is-visible{
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Honour users who have requested reduced motion (accessibility) */
+  @media (prefers-reduced-motion: reduce){
+    .fade-section{
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   /* ===== Site wrapper (toggled off when admin panel is open) ===== */
@@ -2684,6 +2694,13 @@
   // Fade-in-on-scroll animation for each section
   (function fadeInOnScroll(){
     const sections = document.querySelectorAll('.fade-section');
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      // Immediately reveal everything and skip the observer.
+      sections.forEach(s => s.classList.add('is-visible'));
+      return;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -2691,9 +2708,24 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
     sections.forEach(section => observer.observe(section));
+
+    // If the Testimonials section becomes populated after initial paint
+    // (e.g., when admin saves and reveals it), make sure it fades in too.
+    const tSection = document.getElementById('testimonials');
+    if (tSection){
+      const mo = new MutationObserver(() => {
+        if (!tSection.hidden && !tSection.classList.contains('is-visible')){
+          // Small delay so the section paints in its hidden→visible state first
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => tSection.classList.add('is-visible'));
+          });
+        }
+      });
+      mo.observe(tSection, { attributes: true, attributeFilter: ['hidden', 'class'] });
+    }
   })();
 
   // ============================================================
