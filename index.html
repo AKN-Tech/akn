@@ -449,7 +449,7 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
     overflow: hidden;
   }
@@ -591,13 +591,14 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
   }
 
   .projects-container{
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
   }
 
   .projects-subtext{
@@ -728,7 +729,7 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
   }
 
@@ -848,7 +849,7 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
   }
 
@@ -1742,7 +1743,7 @@
     }
 
     #about, #projects, #skills, #contact{
-      padding: 7vh 6vw;
+      padding: 7vh clamp(1.25rem, 5vw, 2.5rem);
     }
 
     .section-heading-wrap{
