@@ -599,6 +599,7 @@
     max-width: 1200px;
     margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
   }
 
   .projects-subtext{
@@ -609,8 +610,9 @@
 
   .projects-grid{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
+    width: 100%;
   }
 
   .project-card{
@@ -622,6 +624,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
+    min-width: 0;
+    max-width: 100%;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
@@ -1031,6 +1035,8 @@
     gap: 1.4rem;
     padding: 2rem 0 1rem;
     text-align: left;
+    width: 100%;
+    box-sizing: border-box;
   }
   .project-detail.active{ display: flex; }
 
@@ -1613,6 +1619,16 @@
       width: 24px;
       height: 24px;
     }
+
+    /* Force single-column grid on phones; guarantees cards never exceed viewport */
+    .projects-grid{
+      grid-template-columns: 1fr !important;
+      gap: 1.2rem;
+    }
+    .project-card{
+      padding: 1.3rem;
+      max-width: 100%;
+    }
   }
 
   /* ===== Responsive ===== */
@@ -1885,6 +1901,7 @@
       <div class="hero-buttons">
         <a href="#projects" class="btn btn-primary">View Projects</a>
         <a href="#contact" class="btn btn-outline">Contact</a>
+        <a href="/resume.pdf" class="btn btn-outline" target="_blank" rel="noopener noreferrer" download>Download Resume</a>
       </div>
     </div>
   </header>
