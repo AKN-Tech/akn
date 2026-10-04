@@ -3,6 +3,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKN — AI Builder &amp; Automation</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
 <meta name="description" content="AKN — Arslan Khan Niazi builds AI-powered software with Lovable, Bolt, Manus, and Claude. Real projects, real results.">
 <meta name="google-site-verification" content="1k3Ukw31sJ5-fXrrcUPYhfQIgW-Nrk2NvqPhSmDPXJo" />
 <meta name="author" content="Arslan Khan Niazi">
@@ -64,6 +68,8 @@
   section, header.hero, footer.site-footer{
     scroll-margin-top: 84px;
   }
+
+  #techstack{ scroll-margin-top: 84px; }
 
   .hidden{ display: none !important; }
 
@@ -134,16 +140,26 @@
     opacity: 1;
   }
 
-  /* ===== Fade-in on scroll ===== */
+  /* ===== Fade-in on scroll (subtle) ===== */
   .fade-section{
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    will-change: opacity, transform;
   }
 
   .fade-section.is-visible{
     opacity: 1;
     transform: translateY(0);
+  }
+
+  /* Honour users who have requested reduced motion (accessibility) */
+  @media (prefers-reduced-motion: reduce){
+    .fade-section{
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   /* ===== Site wrapper (toggled off when admin panel is open) ===== */
@@ -445,7 +461,7 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
     overflow: hidden;
   }
@@ -582,18 +598,107 @@
     background-color: rgba(29, 158, 117, 0.06);
   }
 
+  /* ===== Tech Stack Section ===== */
+  #techstack{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 6vh clamp(1.25rem, 6vw, 4.5rem) 0;
+    position: relative;
+  }
+
+  .techstack-container{
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .techstack-heading{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--teal);
+    text-align: center;
+  }
+
+  .techstack-grid{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .tech-item{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 90px;
+    flex: 0 1 110px;
+  }
+
+  .tech-icon{
+    width: 62px;
+    height: 62px;
+    border-radius: 14px;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .tech-icon svg{
+    width: 32px;
+    height: 32px;
+    fill: var(--teal);
+  }
+  .tech-item:hover .tech-icon{
+    transform: translateY(-4px);
+    border-color: rgba(250, 199, 117, 0.55);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+  }
+  .tech-item:hover .tech-icon svg{
+    fill: var(--amber);
+  }
+
+  .tech-name{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    color: rgba(234, 234, 230, 0.85);
+    text-align: center;
+  }
+
+  @media (max-width: 600px){
+    .techstack-grid{ gap: 1.2rem; }
+    .tech-icon{ width: 54px; height: 54px; border-radius: 12px; }
+    .tech-icon svg{ width: 26px; height: 26px; }
+    .tech-name{ font-size: 0.72rem; }
+    .tech-item{ min-width: 72px; flex-basis: 80px; }
+  }
+
   /* ===== Projects Section ===== */
   #projects{
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
   }
 
   .projects-container{
     max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .projects-subtext{
@@ -604,8 +709,9 @@
 
   .projects-grid{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 2rem;
+    width: 100%;
   }
 
   .project-card{
@@ -617,6 +723,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
+    min-width: 0;
+    max-width: 100%;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
@@ -724,7 +832,7 @@
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
   }
 
@@ -839,12 +947,96 @@
     font-weight: 600;
   }
 
+  /* ===== Testimonials Section ===== */
+  #testimonials{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
+    position: relative;
+  }
+  #testimonials[hidden]{ display: none !important; }
+
+  .testimonials-container{
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .testimonials-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 1.6rem;
+  }
+
+  .testimonial-card{
+    position: relative;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+    border-radius: 12px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .testimonial-card:hover{
+    transform: translateY(-4px);
+    border-color: rgba(250, 199, 117, 0.45);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+  }
+
+  .testimonial-quote-mark{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--amber);
+    opacity: 0.6;
+  }
+
+  .testimonial-quote{
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: rgba(234, 234, 230, 0.9);
+    font-style: italic;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .testimonial-divider{
+    width: 36px;
+    height: 2px;
+    background-color: var(--teal);
+    opacity: 0.6;
+    margin: 0.2rem 0 0.1rem;
+  }
+
+  .testimonial-name{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--amber);
+  }
+  .testimonial-role{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-top: -0.65rem;
+  }
+
+  @media (max-width: 480px){
+    .testimonial-card{ padding: 1.3rem; }
+    .testimonials-grid{ grid-template-columns: 1fr !important; gap: 1.2rem; }
+  }
+
   /* ===== Contact Section ===== */
   #contact{
     background-color: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
-    padding: 10vh 6vw;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
     position: relative;
   }
 
@@ -1016,6 +1208,113 @@
   .contact-form-success.show{
     display: block;
   }
+
+  /* ===== Project detail (case-study) view ===== */
+  .project-detail{
+    max-width: 760px;
+    margin: 0 auto;
+    display: none;
+    flex-direction: column;
+    gap: 1.4rem;
+    padding: 2rem 0 1rem;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .project-detail.active{ display: flex; }
+
+  .project-detail-back{
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--teal);
+    background: none;
+    border: 1px solid var(--teal);
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .project-detail-back:hover{
+    background-color: rgba(29,158,117,0.1);
+    transform: translateX(-2px);
+  }
+
+  .project-detail-title{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--amber);
+    line-height: 1.2;
+    margin-top: 0.4rem;
+  }
+
+  .project-detail-status{
+    display: inline-block;
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: rgba(234, 234, 230, 0.55);
+    border: 1px solid rgba(234, 234, 230, 0.18);
+    background-color: rgba(234, 234, 230, 0.06);
+  }
+  .project-detail-status.status-live{
+    color: #4ade80;
+    border-color: rgba(74,222,128,0.55);
+    background-color: rgba(74,222,128,0.14);
+  }
+  .project-detail-status.status-soon{
+    color: #facc15;
+    border-color: rgba(250,204,21,0.55);
+    background-color: rgba(250,204,21,0.13);
+  }
+
+  .project-detail-section{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.4rem;
+  }
+  .project-detail-section + .project-detail-section{
+    border-top: 1px solid rgba(29,158,117,0.2);
+    padding-top: 1.2rem;
+    margin-top: 0.4rem;
+  }
+  .project-detail-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .project-detail-text{
+    font-size: 1rem;
+    line-height: 1.75;
+    color: rgba(234,234,230,0.85);
+    white-space: pre-wrap;
+  }
+  .project-detail-tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+  .project-detail-cta{
+    margin-top: 1.2rem;
+    align-self: flex-start;
+  }
+
+  /* When a project detail is active, hide the grid */
+  .projects-grid.hidden{ display: none !important; }
+  .projects-subtext.hidden{ display: none !important; }
 
   /* ===== Footer ===== */
   .site-footer{
@@ -1503,6 +1802,16 @@
       width: 24px;
       height: 24px;
     }
+
+    /* Force single-column grid on phones; guarantees cards never exceed viewport */
+    .projects-grid{
+      grid-template-columns: 1fr !important;
+      gap: 1.2rem;
+    }
+    .project-card{
+      padding: 1.3rem;
+      max-width: 100%;
+    }
   }
 
   /* ===== Responsive ===== */
@@ -1633,7 +1942,7 @@
     }
 
     #about, #projects, #skills, #contact{
-      padding: 7vh 6vw;
+      padding: 7vh clamp(1.25rem, 5vw, 2.5rem);
     }
 
     .section-heading-wrap{
@@ -1696,6 +2005,18 @@
 
     .admin-project-card{
       padding: 1.1rem;
+    }
+
+    .project-detail{
+      padding: 1rem 0 1rem;
+      gap: 1rem;
+    }
+    .project-detail-title{
+      font-size: 1.8rem;
+    }
+    .project-detail-cta .btn{
+      width: 100%;
+      justify-content: center;
     }
   }
 </style>
@@ -1763,6 +2084,7 @@
       <div class="hero-buttons">
         <a href="#projects" class="btn btn-primary">View Projects</a>
         <a href="#contact" class="btn btn-outline">Contact</a>
+        <a href="/resume.pdf" class="btn btn-outline" target="_blank" rel="noopener noreferrer" download>Download Resume</a>
       </div>
     </div>
   </header>
@@ -1798,6 +2120,74 @@
     </div>
   </section>
 
+  <!-- Tech Stack Section -->
+  <section id="techstack" class="fade-section">
+    <div class="techstack-container">
+      <span class="techstack-heading">Tech Stack</span>
+      <div class="techstack-grid">
+
+        <!-- Claude (Anthropic) — stylized 'C' mark -->
+        <div class="tech-item">
+          <div class="tech-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14.5 5.5a6.5 6.5 0 1 0 0 13c1.6 0 3-.6 4.1-1.6"/>
+              <circle cx="19.3" cy="6.7" r="1.4"/>
+            </svg>
+          </div>
+          <span class="tech-name">Claude</span>
+        </div>
+
+        <!-- n8n — node graph (central circle + four satellites) -->
+        <div class="tech-item">
+          <div class="tech-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="5"  cy="6"  r="2"/>
+              <circle cx="19" cy="6"  r="2"/>
+              <circle cx="5"  cy="18" r="2"/>
+              <circle cx="19" cy="18" r="2"/>
+              <path d="M6.6 7.4l3.6 3M17.4 7.4l-3.6 3M6.6 16.6l3.6-3M17.4 16.6l-3.6-3"/>
+            </svg>
+          </div>
+          <span class="tech-name">n8n</span>
+        </div>
+
+        <!-- Lovable — heart -->
+        <div class="tech-item">
+          <div class="tech-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 20s-7-4.35-7-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 21 10c0 5.65-9 10-9 10z"/>
+            </svg>
+          </div>
+          <span class="tech-name">Lovable</span>
+        </div>
+
+        <!-- Supabase — database / three stacked cylinders (simplified) -->
+        <div class="tech-item">
+          <div class="tech-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="12" cy="6" rx="7" ry="2.2"/>
+              <path d="M5 6v5c0 1.2 3.1 2.2 7 2.2s7-1 7-2.2V6"/>
+              <path d="M5 11v5c0 1.2 3.1 2.2 7 2.2s7-1 7-2.2v-5" opacity="0.55"/>
+            </svg>
+          </div>
+          <span class="tech-name">Supabase</span>
+        </div>
+
+        <!-- Bolt — lightning bolt -->
+        <div class="tech-item">
+          <div class="tech-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>
+            </svg>
+          </div>
+          <span class="tech-name">Bolt</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
   <!-- Projects Section -->
   <section id="projects" class="fade-section">
     <div class="projects-container">
@@ -1807,12 +2197,41 @@
         <span class="section-label">Selected Work</span>
         <h2 class="section-heading">Projects</h2>
         <hr class="section-divider">
-        <p class="projects-subtext">Automation and AI systems built to remove busywork and streamline operations.</p>
       </div>
 
       <!-- Projects Grid (rendered dynamically from the projects array in siteContent) -->
+      <p class="projects-subtext" id="projectsSubtext">Automation and AI systems built to remove busywork and streamline operations.</p>
       <div class="projects-grid" id="projectsGrid">
         <!-- Project cards are injected here by renderSite() -->
+      </div>
+
+      <!-- Project Detail / Case Study view (shown when URL has #project/<slug>) -->
+      <div class="project-detail" id="projectDetail">
+        <button type="button" class="project-detail-back" id="projectDetailBack">← All Projects</button>
+        <span class="project-detail-status" id="pdStatus"></span>
+        <h2 class="project-detail-title" id="pdTitle"></h2>
+
+        <div class="project-detail-section">
+          <span class="project-detail-label">Problem</span>
+          <p class="project-detail-text" id="pdProblem"></p>
+        </div>
+
+        <div class="project-detail-section" id="pdToolsSection">
+          <span class="project-detail-label">Tools</span>
+          <div class="project-detail-tags" id="pdTools"></div>
+        </div>
+
+        <div class="project-detail-section" id="pdProcessSection">
+          <span class="project-detail-label">How I Built It</span>
+          <p class="project-detail-text" id="pdProcess"></p>
+        </div>
+
+        <div class="project-detail-section">
+          <span class="project-detail-label">Result</span>
+          <p class="project-detail-text" id="pdResult"></p>
+        </div>
+
+        <div class="project-detail-cta" id="pdCta"></div>
       </div>
     </div>
   </section>
@@ -1831,6 +2250,20 @@
       <!-- Skills List (rendered dynamically from the skills array in siteContent) -->
       <div class="skills-list" id="skillsList">
         <!-- Skill rows are injected here by renderSite() -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section (hidden when empty) -->
+  <section id="testimonials" class="fade-section" hidden>
+    <div class="testimonials-container">
+      <div class="section-heading-wrap">
+        <span class="section-label">What People Say</span>
+        <h2 class="section-heading">Testimonials</h2>
+        <hr class="section-divider">
+      </div>
+      <div class="testimonials-grid" id="testimonialsGrid">
+        <!-- Testimonial cards injected here by renderSite() -->
       </div>
     </div>
   </section>
@@ -2048,6 +2481,16 @@
 
       </div>
 
+      <!-- Testimonials Fields (dynamic list rendered by JS) -->
+      <div class="admin-section" id="admTestimonialsSection">
+        <h3 class="admin-section-title">Testimonials</h3>
+        <div id="admTestimonialsList">
+          <!-- Testimonial cards injected here by renderAdminTestimonials() -->
+        </div>
+        <button type="button" id="admAddTestimonialBtn" class="admin-btn admin-btn--outline">+ Add Testimonial</button>
+        <p class="admin-field-hint">Add client/mentor quotes. The Testimonials section on the site will be hidden automatically until you add at least one.</p>
+      </div>
+
       <!-- Contact Fields -->
       <div class="admin-section">
         <h3 class="admin-section-title">Contact</h3>
@@ -2110,10 +2553,10 @@
       photo: ""       // base64 data URL (from upload) OR a public image URL (pasted)
     },
     projects: [
-      { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" },
-      { name: "Inventory Management System", status: "In Development", problem: "Manual stock tracking causes stockouts and overstock.", tools: ["n8n", "Lovable"], result: "Coming soon", link: "#" },
-      { name: "Education Attendance System", status: "In Development", problem: "Manual/paper attendance is slow and error-prone.", tools: ["n8n", "Lovable"], result: "Coming soon", link: "#" },
-      { name: "AI Finance / Money Tracker", status: "In Development", problem: "Tracking expenses manually is tedious and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" }
+      { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", process: "", link: "#" },
+      { name: "Inventory Management System", status: "In Development", problem: "Manual stock tracking causes stockouts and overstock.", tools: ["n8n", "Lovable"], result: "Coming soon", process: "", link: "#" },
+      { name: "Education Attendance System", status: "In Development", problem: "Manual/paper attendance is slow and error-prone.", tools: ["n8n", "Lovable"], result: "Coming soon", process: "", link: "#" },
+      { name: "AI Finance / Money Tracker", status: "In Development", problem: "Tracking expenses manually is tedious and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", process: "", link: "#" }
     ],
     skills: [
       { label: "Automation", desc: "n8n — building reliable, end-to-end automated workflows." },
@@ -2121,6 +2564,7 @@
       { label: "App Building", desc: "Lovable — no-code/low-code application development." },
       { label: "Core Skill", desc: "Turning manual processes into automated systems." }
     ],
+    testimonials: [],
     contact: {
       heading: "Let's talk.",
       subtext: "Open to freelance projects, collaborations, and opportunities in automation & AI."
@@ -2250,6 +2694,13 @@
   // Fade-in-on-scroll animation for each section
   (function fadeInOnScroll(){
     const sections = document.querySelectorAll('.fade-section');
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      // Immediately reveal everything and skip the observer.
+      sections.forEach(s => s.classList.add('is-visible'));
+      return;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -2257,9 +2708,24 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
     sections.forEach(section => observer.observe(section));
+
+    // If the Testimonials section becomes populated after initial paint
+    // (e.g., when admin saves and reveals it), make sure it fades in too.
+    const tSection = document.getElementById('testimonials');
+    if (tSection){
+      const mo = new MutationObserver(() => {
+        if (!tSection.hidden && !tSection.classList.contains('is-visible')){
+          // Small delay so the section paints in its hidden→visible state first
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => tSection.classList.add('is-visible'));
+          });
+        }
+      });
+      mo.observe(tSection, { attributes: true, attributeFilter: ['hidden', 'class'] });
+    }
   })();
 
   // ============================================================
@@ -2416,15 +2882,13 @@
         resultEl.textContent = 'Result: ' + (p.result || '');
         card.appendChild(resultEl);
 
-        // Link
+        // Link — navigates to internal detail page via hash route
+        const slug = projectSlug(p.name, idx);
         const linkEl = document.createElement('a');
         linkEl.className = 'project-link';
-        linkEl.href = p.link || '#';
+        linkEl.href = '#project/' + slug;
         linkEl.textContent = 'View Details →';
-        if (p.link && p.link !== '#') {
-          linkEl.target = '_blank';
-          linkEl.rel = 'noopener noreferrer';
-        }
+        linkEl.setAttribute('data-project-slug', slug);
         card.appendChild(linkEl);
 
         projectsGrid.appendChild(card);
@@ -2487,6 +2951,51 @@
       });
     }
 
+    // Testimonials — hide entire section if empty
+    const tSection = document.getElementById('testimonials');
+    const tGrid    = document.getElementById('testimonialsGrid');
+    const testimonials = Array.isArray(content.testimonials)
+      ? content.testimonials.filter(t => t && (t.quote || '').trim().length > 0)
+      : [];
+    if (tSection && tGrid){
+      tGrid.innerHTML = '';
+      if (testimonials.length === 0){
+        tSection.hidden = true;
+      } else {
+        tSection.hidden = false;
+        testimonials.forEach(t => {
+          const card = document.createElement('div');
+          card.className = 'testimonial-card';
+
+          const qmark = document.createElement('span');
+          qmark.className = 'testimonial-quote-mark';
+          qmark.textContent = '“';
+          card.appendChild(qmark);
+
+          const quote = document.createElement('p');
+          quote.className = 'testimonial-quote';
+          quote.textContent = t.quote || '';
+          card.appendChild(quote);
+
+          const divider = document.createElement('div');
+          divider.className = 'testimonial-divider';
+          card.appendChild(divider);
+
+          const name = document.createElement('span');
+          name.className = 'testimonial-name';
+          name.textContent = t.name || '';
+          card.appendChild(name);
+
+          const role = document.createElement('span');
+          role.className = 'testimonial-role';
+          role.textContent = t.role || '';
+          card.appendChild(role);
+
+          tGrid.appendChild(card);
+        });
+      }
+    }
+
     // Contact
     if (content.contact) {
       setText('contactHeading', content.contact.heading);
@@ -2540,6 +3049,139 @@
   }
 
   // ============================================================
+  // PROJECT DETAIL ROUTING (hash-based: #project/<slug>)
+  // ============================================================
+  function projectSlug(name, fallbackIdx){
+    const base = String(name || 'project-' + (fallbackIdx != null ? fallbackIdx : 0))
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return base || ('project-' + (fallbackIdx != null ? fallbackIdx : 0));
+  }
+
+  function findProjectBySlug(slug){
+    if (!slug || !siteContent || !Array.isArray(siteContent.projects)) return null;
+    const projects = siteContent.projects;
+    // First pass: exact slug match
+    for (let i = 0; i < projects.length; i++){
+      if (projectSlug(projects[i].name, i) === slug) return projects[i];
+    }
+    return null;
+  }
+
+  function statusClassFor(text){
+    const s = (text || '').toLowerCase();
+    if (s === 'live demo' || s === 'ready' || s === 'live') return 'status-live';
+    if (s === 'almost ready' || s === 'coming soon' || s === 'nearly done') return 'status-soon';
+    return '';
+  }
+
+  function renderProjectDetail(project){
+    const detail  = document.getElementById('projectDetail');
+    const grid    = document.getElementById('projectsGrid');
+    const sub     = document.getElementById('projectsSubtext');
+    const status  = document.getElementById('pdStatus');
+    const title   = document.getElementById('pdTitle');
+    const problem = document.getElementById('pdProblem');
+    const toolsEl = document.getElementById('pdTools');
+    const toolsSec= document.getElementById('pdToolsSection');
+    const procSec = document.getElementById('pdProcessSection');
+    const proc    = document.getElementById('pdProcess');
+    const result  = document.getElementById('pdResult');
+    const ctaWrap = document.getElementById('pdCta');
+    const headingWrap = document.querySelector('#projects .section-heading-wrap');
+    if (!detail) return;
+
+    if (!project){
+      // Back to grid view
+      detail.classList.remove('active');
+      if (grid) grid.classList.remove('hidden');
+      if (sub)  sub.classList.remove('hidden');
+      if (headingWrap) headingWrap.style.display = '';
+      window.scrollTo({ top: document.getElementById('projects').offsetTop - navbar.offsetHeight, behavior: 'instant' in window ? 'instant' : 'auto' });
+      return;
+    }
+
+    // Populate fields
+    status.textContent = project.status || 'In Development';
+    status.className = 'project-detail-status ' + statusClassFor(project.status);
+    title.textContent = project.name || '';
+    problem.textContent = project.problem || '';
+    result.textContent = project.result || '';
+
+    // Tools
+    toolsEl.innerHTML = '';
+    (project.tools || []).forEach(t => {
+      if (!t) return;
+      const s = document.createElement('span');
+      s.className = 'project-tag';
+      s.textContent = t;
+      toolsEl.appendChild(s);
+    });
+    toolsSec.style.display = (project.tools && project.tools.length) ? '' : 'none';
+
+    // Process (only show section if filled in)
+    if (project.process && project.process.trim()){
+      proc.textContent = project.process;
+      procSec.style.display = '';
+    } else {
+      proc.textContent = '';
+      procSec.style.display = 'none';
+    }
+
+    // Visit Live Demo CTA (only when link is real)
+    ctaWrap.innerHTML = '';
+    if (project.link && project.link.trim() !== '#' && project.link.trim().length > 0){
+      const btn = document.createElement('a');
+      btn.className = 'btn btn-primary';
+      btn.href = project.link;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = 'Visit Live Demo →';
+      ctaWrap.appendChild(btn);
+    }
+
+    // Show detail, hide grid
+    detail.classList.add('active');
+    if (grid) grid.classList.add('hidden');
+    if (sub)  sub.classList.add('hidden');
+    if (headingWrap) headingWrap.style.display = 'none';
+
+    // Scroll to top of projects section
+    setTimeout(() => {
+      const top = document.getElementById('projects').getBoundingClientRect().top + window.pageYOffset - navbar.offsetHeight + 1;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }, 30);
+  }
+
+  function handleRoute(){
+    const hash = window.location.hash || '';
+    const match = hash.match(/^#project\/(.+)$/);
+    if (match){
+      const slug = decodeURIComponent(match[1]);
+      renderProjectDetail(findProjectBySlug(slug));
+    } else {
+      renderProjectDetail(null);
+    }
+  }
+
+  // Wire router
+  window.addEventListener('hashchange', handleRoute);
+  const backBtn = document.getElementById('projectDetailBack');
+  if (backBtn){
+    backBtn.addEventListener('click', () => {
+      // If history has a previous #project entry, go back; otherwise clear hash
+      if (document.referrer && window.history.length > 1){
+        window.history.back();
+        // Fallback in case history.back doesn't clear the hash
+        setTimeout(() => { if (window.location.hash.startsWith('#project/')) window.location.hash = ''; }, 100);
+      } else {
+        window.location.hash = '';
+      }
+    });
+  }
+
+  // ============================================================
   // LOAD CONTENT FROM SUPABASE
   // ============================================================
   const loadingOverlay = document.getElementById('loadingOverlay');
@@ -2554,12 +3196,17 @@
     setTimeout(() => fetchWarning.classList.remove('show'), 5000);
   }
 
+  function renderAndRoute(content){
+    renderSite(content);
+    handleRoute();
+  }
+
   async function loadContent(){
     // Render the built-in default content immediately so the page is never
     // blocked behind a spinner. The Supabase fetch runs in the background
     // and updates the DOM in place if/when it succeeds.
     siteContent = DEFAULT_CONTENT;
-    renderSite(siteContent);
+    renderAndRoute(siteContent);
     hideLoadingOverlay();
 
     try {
@@ -2573,10 +3220,8 @@
         throw error || new Error('No content returned from Supabase.');
       }
 
-      // Only re-render if the fetched content differs meaningfully from
-      // what we already painted (avoids a visible flicker on first paint).
       siteContent = data.content;
-      renderSite(siteContent);
+      renderAndRoute(siteContent);
     } catch (err) {
       console.warn('Could not load from Supabase — staying on default content:', err);
       showFetchWarning();
@@ -2745,6 +3390,8 @@
       card.appendChild(makeField('text',     `admP${idx}Tools`,   'Tools (comma-separated)', (p.tools || []).join(', ')));
       // Result
       card.appendChild(makeField('text',     `admP${idx}Result`,  'Result',              p.result));
+      // Process / How I Built It
+      card.appendChild(makeField('textarea', `admP${idx}Process`, 'Process / How I Built It', p.process || ''));
       // Link
       card.appendChild(makeField('text',     `admP${idx}Link`,    'Link',                p.link));
 
@@ -2804,6 +3451,7 @@
       const probEl    = document.getElementById(`admP${idx}Problem`);
       const toolsEl   = document.getElementById(`admP${idx}Tools`);
       const resultEl  = document.getElementById(`admP${idx}Result`);
+      const processEl = document.getElementById(`admP${idx}Process`);
       const linkEl    = document.getElementById(`admP${idx}Link`);
       if (!nameEl) return; // card not currently rendered / mismatch
       adminProjects[idx] = {
@@ -2812,6 +3460,7 @@
         problem: probEl ? probEl.value : '',
         tools: toolsEl ? toolsEl.value.split(',').map(t => t.trim()).filter(t => t.length > 0) : [],
         result: resultEl ? resultEl.value : '',
+        process: processEl ? processEl.value : '',
         link: linkEl ? linkEl.value : ''
       };
     });
@@ -2864,6 +3513,9 @@
     // Projects (dynamic list)
     renderAdminProjects(c.projects || []);
 
+    // Testimonials (dynamic list)
+    renderAdminTestimonials(c.testimonials || []);
+
     // Skills
     (c.skills || []).forEach((s, idx) => {
       const i = idx + 1;
@@ -2889,8 +3541,17 @@
         ? p.tools.map(t => (t || '').trim()).filter(t => t.length > 0)
         : [],
       result: (p.result || '').trim(),
+      process: (p.process || '').trim(),
       link: (p.link || '').trim() || '#'
     })).filter(p => p.name.length > 0 || p.problem.length > 0); // drop fully-empty cards
+
+    // Pull latest values from the dynamic testimonials form fields
+    syncAdminTestimonialsFromForm();
+    const testimonials = adminTestimonials.map(t => ({
+      name:  (t.name  || '').trim(),
+      role:  (t.role  || '').trim(),
+      quote: (t.quote || '').trim()
+    })).filter(t => t.quote.length > 0); // need at least a quote to show the card
 
     const skills = [];
     for (let i = 1; i <= 4; i++){
@@ -2927,6 +3588,7 @@
       },
       projects: projects,
       skills: skills,
+      testimonials: testimonials,
       contact: {
         heading: val('admContactHeading').trim(),
         subtext: val('admContactSubtext').trim()
@@ -2957,7 +3619,7 @@
       if (error) throw error;
 
       siteContent = newContent;
-      renderSite(siteContent);
+      renderAndRoute(siteContent);
       saveSuccessMsg.classList.remove('hidden');
       setTimeout(() => saveSuccessMsg.classList.add('hidden'), 4000);
     } catch (err) {
@@ -2974,6 +3636,95 @@
   // Dynamic "Add Project" button
   const addProjectBtn = document.getElementById('admAddProjectBtn');
   if (addProjectBtn) addProjectBtn.addEventListener('click', addAdminProject);
+
+  // ============================================================
+  // DYNAMIC ADMIN TESTIMONIALS LIST
+  // ============================================================
+  let adminTestimonials = [];
+
+  function emptyTestimonial(){
+    return { name: '', role: '', quote: '' };
+  }
+
+  function renderAdminTestimonials(testimonials){
+    adminTestimonials = (testimonials || []).map(t => ({
+      name: t.name || '',
+      role: t.role || '',
+      quote: t.quote || ''
+    }));
+
+    const list = document.getElementById('admTestimonialsList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (adminTestimonials.length === 0){
+      const empty = document.createElement('p');
+      empty.className = 'admin-project-empty';
+      empty.textContent = 'No testimonials yet. Click "+ Add Testimonial" to add your first one.';
+      list.appendChild(empty);
+      return;
+    }
+
+    adminTestimonials.forEach((t, idx) => {
+      const card = document.createElement('div');
+      card.className = 'admin-project-card';
+      card.dataset.index = String(idx);
+
+      const title = document.createElement('span');
+      title.className = 'admin-project-title';
+      title.textContent = (t.name && t.name.trim())
+        ? `Testimonial #${idx + 1} — ${t.name}`
+        : `Testimonial #${idx + 1}`;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'admin-remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.title = 'Remove this testimonial';
+      removeBtn.addEventListener('click', () => removeAdminTestimonial(idx));
+
+      const header = document.createElement('div');
+      header.className = 'admin-project-header';
+      header.appendChild(title);
+      header.appendChild(removeBtn);
+      card.appendChild(header);
+
+      card.appendChild(makeField('text',     `admT${idx}Name`,  'Name',         t.name));
+      card.appendChild(makeField('text',     `admT${idx}Role`,  'Role / Company', t.role));
+      card.appendChild(makeField('textarea', `admT${idx}Quote`, 'Quote',        t.quote));
+
+      list.appendChild(card);
+    });
+  }
+
+  function addAdminTestimonial(){
+    syncAdminTestimonialsFromForm();
+    adminTestimonials.push(emptyTestimonial());
+    renderAdminTestimonials(adminTestimonials);
+  }
+
+  function removeAdminTestimonial(idx){
+    syncAdminTestimonialsFromForm();
+    adminTestimonials.splice(idx, 1);
+    renderAdminTestimonials(adminTestimonials);
+  }
+
+  function syncAdminTestimonialsFromForm(){
+    adminTestimonials.forEach((_, idx) => {
+      const nameEl  = document.getElementById(`admT${idx}Name`);
+      const roleEl  = document.getElementById(`admT${idx}Role`);
+      const quoteEl = document.getElementById(`admT${idx}Quote`);
+      if (!nameEl) return;
+      adminTestimonials[idx] = {
+        name:  nameEl  ? nameEl.value  : '',
+        role:  roleEl  ? roleEl.value  : '',
+        quote: quoteEl ? quoteEl.value : ''
+      };
+    });
+  }
+
+  const addTestimonialBtn = document.getElementById('admAddTestimonialBtn');
+  if (addTestimonialBtn) addTestimonialBtn.addEventListener('click', addAdminTestimonial);
 
   // ============================================================
   // PROFILE PHOTO UPLOAD (Admin)
