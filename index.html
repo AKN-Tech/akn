@@ -2,7 +2,32 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AKN — Automation &amp; AI Builder</title>
+<title>AKN — AI Builder &amp; Automation</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
+<meta name="description" content="AKN — Arslan Khan Niazi builds AI-powered software with Lovable, Bolt, Manus, and Claude. Real projects, real results.">
+<meta name="google-site-verification" content="1k3Ukw31sJ5-fXrrcUPYhfQIgW-Nrk2NvqPhSmDPXJo" />
+<meta name="author" content="Arslan Khan Niazi">
+<meta name="theme-color" content="#0B0F0E">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://akn-portfolio.netlify.app/">
+<meta property="og:title" content="AKN — AI Builder &amp; Automation">
+<meta property="og:description" content="I build software with AI, not just code. Portfolio of AI-powered apps and automation projects by Arslan Khan Niazi.">
+<meta property="og:image" content="https://akn-portfolio.netlify.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="AKN">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://akn-portfolio.netlify.app/">
+<meta name="twitter:title" content="AKN — AI Builder &amp; Automation">
+<meta name="twitter:description" content="I build software with AI, not just code.">
+<meta name="twitter:image" content="https://akn-portfolio.netlify.app/og-image.png">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -167,6 +192,13 @@
     align-items: center;
     gap: 2.4rem;
     list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Desktop nav links live inside the navbar row */
+  .navbar-links--mobile{
+    display: none;
   }
 
   .navbar-link{
@@ -211,6 +243,40 @@
     height: 2px;
     background-color: var(--amber);
     display: block;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+
+  /* Hamburger -> X animation when menu is open */
+  .navbar-toggle.open span:nth-child(1){
+    transform: translateY(7px) rotate(45deg);
+  }
+  .navbar-toggle.open span:nth-child(2){
+    opacity: 0;
+  }
+  .navbar-toggle.open span:nth-child(3){
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* Mobile menu backdrop */
+  .nav-backdrop{
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 98;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .nav-backdrop.show{
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* Prevent body scroll when mobile menu is open */
+  body.nav-open{
+    overflow: hidden;
   }
 
   /* ===== Hero ===== */
@@ -422,6 +488,19 @@
     position: absolute;
     inset: 0;
     background-color: #1a2224;
+    z-index: 0;
+  }
+
+  .about-photo-img{
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .about-photo-img.visible{
+    display: block;
   }
 
   .about-photo-placeholder-text{
@@ -529,7 +608,7 @@
 
   .projects-grid{
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
     gap: 2rem;
   }
 
@@ -572,18 +651,28 @@
     font-size: 0.68rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: var(--teal);
-    border: 1px solid rgba(29, 158, 117, 0.55);
-    background-color: rgba(29, 158, 117, 0.07);
+    /* Default / In Development — dull muted grey */
+    color: rgba(234, 234, 230, 0.55);
+    border: 1px solid rgba(234, 234, 230, 0.18);
+    background-color: rgba(234, 234, 230, 0.06);
     padding: 4px 10px;
     border-radius: 999px;
     white-space: nowrap;
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
   }
 
+  /* Green — Live Demo / Ready / Live */
   .project-status.status-live{
-    color: var(--amber);
-    border-color: rgba(250, 199, 117, 0.55);
-    background-color: rgba(250, 199, 117, 0.07);
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.55);
+    background-color: rgba(74, 222, 128, 0.14);
+  }
+
+  /* Yellow/Amber — Almost Ready / Coming Soon */
+  .project-status.status-soon{
+    color: #facc15;
+    border-color: rgba(250, 204, 21, 0.55);
+    background-color: rgba(250, 204, 21, 0.13);
   }
 
   .project-problem{
@@ -655,9 +744,9 @@
 
   .skill-row{
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 300px 1fr;
     gap: 2rem;
-    align-items: baseline;
+    align-items: start;
     padding: 1.8rem 0;
   }
 
@@ -665,18 +754,88 @@
     border-bottom: 1px solid rgba(29, 158, 117, 0.3);
   }
 
+  .skill-left{
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .skill-head{
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .skill-icon{
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background-color: rgba(29, 158, 117, 0.12);
+    border: 1px solid rgba(29, 158, 117, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--teal);
+  }
+
+  .skill-icon svg{
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .skill-icon.icon-amber{
+    color: var(--amber);
+    background-color: rgba(250, 199, 117, 0.1);
+    border-color: rgba(250, 199, 117, 0.3);
+  }
+
   .skill-label{
     font-family: 'JetBrains Mono', monospace;
     font-weight: 700;
     font-size: 1.05rem;
-    color: var(--amber);
+    color: var(--text);
     letter-spacing: 0.3px;
+  }
+
+  .skill-rating{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: calc(34px + 0.7rem); /* aligns under label text (next to icon) */
+  }
+
+  .skill-dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgba(234, 234, 230, 0.12);
+    border: 1px solid rgba(234, 234, 230, 0.18);
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+
+  .skill-dot.filled{
+    background-color: var(--teal);
+    border-color: var(--teal);
+    box-shadow: 0 0 8px rgba(29, 158, 117, 0.5);
+  }
+
+  .skill-dot.filled.amber{
+    background-color: var(--amber);
+    border-color: var(--amber);
+    box-shadow: 0 0 8px rgba(250, 199, 117, 0.5);
   }
 
   .skill-desc{
     font-size: 1rem;
     line-height: 1.7;
     color: rgba(234, 234, 230, 0.85);
+    padding-top: 0.25rem;
   }
 
   .skill-desc strong{
@@ -741,6 +900,231 @@
     gap: 1.1rem;
     margin-top: 1.4rem;
   }
+
+  /* ===== Contact form ===== */
+  .contact-form{
+    width: 100%;
+    max-width: 520px;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+    border-radius: 12px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 0.6rem;
+    text-align: left;
+  }
+
+  .contact-form-row{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .contact-form-field{
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .contact-form-field.full{
+    grid-column: 1 / -1;
+  }
+
+  .contact-form-field label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(234, 234, 230, 0.7);
+  }
+
+  .contact-form-field input,
+  .contact-form-field textarea{
+    width: 100%;
+    background-color: var(--bg);
+    border: 1px solid rgba(29, 158, 117, 0.35);
+    color: var(--text);
+    padding: 11px 13px;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .contact-form-field input:focus,
+  .contact-form-field textarea:focus{
+    outline: none;
+    border-color: var(--teal);
+  }
+
+  .contact-form-field textarea{
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.5;
+  }
+
+  /* Honeypot — never shown to users or screen readers */
+  .contact-form-honeypot{
+    position: absolute !important;
+    left: -10000px !important;
+    top: auto !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+  }
+
+  .contact-form-submit{
+    align-self: center;
+    margin-top: 0.3rem;
+  }
+
+  .contact-form-error{
+    display: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: #ff8a80;
+    letter-spacing: 0.3px;
+    margin-top: 0.1rem;
+  }
+  .contact-form-error.show{
+    display: block;
+  }
+  .contact-form-field.has-error input,
+  .contact-form-field.has-error textarea{
+    border-color: #ff8a80;
+  }
+
+  .contact-form-status{
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    text-align: center;
+    min-height: 1.2em;
+  }
+  .contact-form-status.error{
+    color: #ff8a80;
+  }
+
+  .contact-form-success{
+    display: none;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--teal);
+    padding: 1.4rem 0;
+    line-height: 1.6;
+  }
+  .contact-form-success.show{
+    display: block;
+  }
+
+  /* ===== Project detail (case-study) view ===== */
+  .project-detail{
+    max-width: 760px;
+    margin: 0 auto;
+    display: none;
+    flex-direction: column;
+    gap: 1.4rem;
+    padding: 2rem 0 1rem;
+    text-align: left;
+  }
+  .project-detail.active{ display: flex; }
+
+  .project-detail-back{
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--teal);
+    background: none;
+    border: 1px solid var(--teal);
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .project-detail-back:hover{
+    background-color: rgba(29,158,117,0.1);
+    transform: translateX(-2px);
+  }
+
+  .project-detail-title{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    color: var(--amber);
+    line-height: 1.2;
+    margin-top: 0.4rem;
+  }
+
+  .project-detail-status{
+    display: inline-block;
+    align-self: flex-start;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: rgba(234, 234, 230, 0.55);
+    border: 1px solid rgba(234, 234, 230, 0.18);
+    background-color: rgba(234, 234, 230, 0.06);
+  }
+  .project-detail-status.status-live{
+    color: #4ade80;
+    border-color: rgba(74,222,128,0.55);
+    background-color: rgba(74,222,128,0.14);
+  }
+  .project-detail-status.status-soon{
+    color: #facc15;
+    border-color: rgba(250,204,21,0.55);
+    background-color: rgba(250,204,21,0.13);
+  }
+
+  .project-detail-section{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 0.4rem;
+  }
+  .project-detail-section + .project-detail-section{
+    border-top: 1px solid rgba(29,158,117,0.2);
+    padding-top: 1.2rem;
+    margin-top: 0.4rem;
+  }
+  .project-detail-label{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+  .project-detail-text{
+    font-size: 1rem;
+    line-height: 1.75;
+    color: rgba(234,234,230,0.85);
+    white-space: pre-wrap;
+  }
+  .project-detail-tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+  }
+  .project-detail-cta{
+    margin-top: 1.2rem;
+    align-self: flex-start;
+  }
+
+  /* When a project detail is active, hide the grid */
+  .projects-grid.hidden{ display: none !important; }
+  .projects-subtext.hidden{ display: none !important; }
 
   /* ===== Footer ===== */
   .site-footer{
@@ -1002,6 +1386,108 @@
     gap: 0.4rem;
   }
 
+  .admin-photo-row{
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .admin-photo-preview{
+    width: 96px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(29, 158, 117, 0.35);
+    background-color: var(--bg);
+    display: none;
+    flex-shrink: 0;
+  }
+  .admin-photo-preview.has-photo{
+    display: block;
+  }
+
+  .admin-photo-actions{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .admin-file-input{
+    display: none;
+  }
+
+  .admin-btn--small{
+    padding: 9px 16px;
+    font-size: 0.82rem;
+    width: auto;
+    align-self: flex-start;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .admin-btn--outline{
+    background-color: transparent;
+    color: var(--teal);
+    border: 1px solid var(--teal);
+    padding: 10px 18px;
+    font-size: 0.82rem;
+    align-self: flex-start;
+  }
+  .admin-btn--outline:hover{
+    background-color: rgba(29, 158, 117, 0.1);
+    box-shadow: none;
+  }
+
+  .admin-project-remove{
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: 1px solid rgba(255,138,128,0.35);
+    color: #ff8a80;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .admin-project-remove:hover{
+    background-color: rgba(255,138,128,0.1);
+    border-color: #ff8a80;
+  }
+
+  .admin-project-empty{
+    font-size: 0.85rem;
+    color: rgba(234, 234, 230, 0.5);
+    padding: 1rem 0;
+    font-style: italic;
+  }
+
+  .admin-link-btn{
+    background: none;
+    border: none;
+    color: #ff8a80;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    cursor: pointer;
+    padding: 0;
+    align-self: flex-start;
+    transition: opacity 0.2s ease;
+  }
+  .admin-link-btn:hover{
+    opacity: 0.75;
+  }
+
+  .admin-field-hint{
+    font-size: 0.75rem;
+    color: rgba(234, 234, 230, 0.45);
+    line-height: 1.5;
+  }
+
   .admin-field label{
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.75rem;
@@ -1017,10 +1503,11 @@
   }
 
   .admin-project-card{
+    position: relative;
     background-color: rgba(29, 158, 117, 0.04);
     border: 1px solid rgba(29, 158, 117, 0.2);
     border-radius: 10px;
-    padding: 1.4rem;
+    padding: 1.4rem 1.4rem 1.4rem 1.4rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -1096,7 +1583,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 90;
+    z-index: 90; /* sits below nav overlay (z=98/101) so menu/backdrop cover it */
     box-shadow: 0 6px 20px rgba(29, 158, 117, 0.35);
     transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
     text-decoration: none;
@@ -1166,37 +1653,64 @@
   }
 
   @media (max-width: 820px){
-    .navbar-links{
-      position: fixed;
-      top: 64px;
-      right: 0;
-      height: calc(100vh - 64px);
-      width: 60%;
-      max-width: 280px;
-      background-color: var(--panel);
-      border-left: 1px solid rgba(29,158,117,0.25);
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 2.5rem;
-      gap: 2rem;
-      transform: translateX(100%);
-      transition: transform 0.3s ease;
+    /* Hide desktop inline links on mobile */
+    .navbar-links--desktop{
+      display: none;
     }
 
-    .navbar-links.open{
+    /* Mobile slide-out panel (positioned fixed to the viewport, not to the nav) */
+    .navbar-links--mobile{
+      display: flex;
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 75%;
+      max-width: 300px;
+      background-color: #0f1516;
+      border-left: 1px solid rgba(29,158,117,0.35);
+      box-shadow: -8px 0 32px rgba(0,0,0,0.5);
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 2rem 2rem 2.2rem;
+      gap: 1.8rem;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 101;
+      margin: 0;
+    }
+
+    .navbar-links--mobile.open{
       transform: translateX(0);
+    }
+
+    .navbar-link{
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
     .navbar-toggle{
       display: flex;
+      z-index: 102;
+      position: relative;
+    }
+
+    .nav-backdrop{
+      z-index: 100;
     }
   }
 
   @media (max-width: 640px){
     .skill-row{
       grid-template-columns: 1fr;
-      gap: 0.5rem;
+      gap: 0.6rem;
       padding: 1.5rem 0;
+    }
+
+    .skill-rating{
+      padding-left: calc(34px + 0.7rem);
     }
 
     .footer-top{
@@ -1248,6 +1762,14 @@
       width: 100%;
     }
 
+    .contact-form{
+      padding: 1.4rem;
+    }
+
+    .contact-form-row{
+      grid-template-columns: 1fr;
+    }
+
     .btn{
       justify-content: center;
       width: 100%;
@@ -1284,13 +1806,30 @@
     .admin-project-card{
       padding: 1.1rem;
     }
+
+    .project-detail{
+      padding: 1rem 0 1rem;
+      gap: 1rem;
+    }
+    .project-detail-title{
+      font-size: 1.8rem;
+    }
+    .project-detail-cta .btn{
+      width: 100%;
+      justify-content: center;
+    }
   }
 </style>
 </head>
 <body>
 
-<!-- ==================== LOADING OVERLAY ==================== -->
-<div id="loadingOverlay">
+<!-- Netlify needs a statically-rendered form at build time to register the
+     "contact" form. The visible #contactForm IS statically rendered in the
+     HTML with data-netlify="true", so it is detected automatically; we don't
+     need a second duplicate hidden form (which was confusing routing). -->
+
+<!-- ==================== LOADING OVERLAY (hidden by default — content renders immediately) ==================== -->
+<div id="loadingOverlay" class="hide">
   <div class="loading-spinner"></div>
   <p class="loading-text">Loading site content…</p>
 </div>
@@ -1304,18 +1843,31 @@
   <!-- Navbar Section -->
   <nav class="navbar" id="navbar">
     <div class="navbar-logo">AKN</div>
-    <button class="navbar-toggle" id="navToggle" aria-label="Toggle menu">
+    <button class="navbar-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileNav">
       <span></span>
       <span></span>
       <span></span>
     </button>
-    <ul class="navbar-links" id="navLinks">
+    <!-- Desktop-only inline links (hidden on mobile via media query) -->
+    <ul class="navbar-links navbar-links--desktop" id="navLinksDesktop">
       <li><a href="#about" class="navbar-link">About</a></li>
       <li><a href="#projects" class="navbar-link">Projects</a></li>
       <li><a href="#skills" class="navbar-link">Skills</a></li>
       <li><a href="#contact" class="navbar-link">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- Mobile slide-out panel (placed OUTSIDE the <nav> because the nav has
+       backdrop-filter which would clip position:fixed descendants to the nav box) -->
+  <ul class="navbar-links navbar-links--mobile" id="navLinksMobile" aria-hidden="true">
+    <li><a href="#about" class="navbar-link">About</a></li>
+    <li><a href="#projects" class="navbar-link">Projects</a></li>
+    <li><a href="#skills" class="navbar-link">Skills</a></li>
+    <li><a href="#contact" class="navbar-link">Contact</a></li>
+  </ul>
+
+  <!-- Mobile nav backdrop dim -->
+  <div class="nav-backdrop" id="navBackdrop"></div>
 
   <!-- Hero Section -->
   <header class="hero" id="hero">
@@ -1324,8 +1876,8 @@
 
     <div class="hero-content">
       <span class="hero-tag">System Online</span>
-      <h1 class="hero-heading" id="heroTitle">AKN</h1>
-      <h2 class="hero-subheading" id="heroSubtitle">Automation &amp; AI Builder</h2>
+      <div class="hero-heading" id="heroTitle">AKN</div>
+      <h1 class="hero-subheading" id="heroSubtitle">Automation &amp; AI Builder</h1>
       <p class="hero-byline">by <span id="heroByline">Arslan Khan Niazi</span></p>
       <p class="hero-tagline" id="heroTagline">I automate your busywork so you can focus on growth.</p>
 
@@ -1343,9 +1895,10 @@
       <!-- Photo Placeholder -->
       <div class="about-photo-wrap">
         <div class="about-photo-box">
+          <img class="about-photo-img" id="aboutPhotoImg" alt="Profile photo">
           <span class="about-photo-corner tl"></span>
           <span class="about-photo-corner br"></span>
-          <span class="about-photo-placeholder-text">Photo Coming Soon</span>
+          <span class="about-photo-placeholder-text" id="aboutPhotoPlaceholder">Photo Coming Soon</span>
         </div>
       </div>
 
@@ -1375,60 +1928,41 @@
         <span class="section-label">Selected Work</span>
         <h2 class="section-heading">Projects</h2>
         <hr class="section-divider">
-        <p class="projects-subtext">Automation and AI systems built to remove busywork and streamline operations.</p>
       </div>
 
-      <!-- Projects Grid -->
-      <div class="projects-grid">
+      <!-- Projects Grid (rendered dynamically from the projects array in siteContent) -->
+      <p class="projects-subtext" id="projectsSubtext">Automation and AI systems built to remove busywork and streamline operations.</p>
+      <div class="projects-grid" id="projectsGrid">
+        <!-- Project cards are injected here by renderSite() -->
+      </div>
 
-        <!-- Project Card 1 -->
-        <div class="project-card" id="project1">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project1Name">Real Estate Website</h3>
-            <span class="project-status" id="project1Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project1Problem">Property inquiries manually handled by agents are slow and inconsistent.</p>
-          <div class="project-tags" id="project1Tags"><span class="project-tag">Claude</span><span class="project-tag">n8n</span></div>
-          <p class="project-result" id="project1Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project1Link">View Details →</a>
+      <!-- Project Detail / Case Study view (shown when URL has #project/<slug>) -->
+      <div class="project-detail" id="projectDetail">
+        <button type="button" class="project-detail-back" id="projectDetailBack">← All Projects</button>
+        <span class="project-detail-status" id="pdStatus"></span>
+        <h2 class="project-detail-title" id="pdTitle"></h2>
+
+        <div class="project-detail-section">
+          <span class="project-detail-label">Problem</span>
+          <p class="project-detail-text" id="pdProblem"></p>
         </div>
 
-        <!-- Project Card 2 -->
-        <div class="project-card" id="project2">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project2Name">Inventory Management System</h3>
-            <span class="project-status" id="project2Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project2Problem">Manual stock tracking causes stockouts and overstock.</p>
-          <div class="project-tags" id="project2Tags"><span class="project-tag">n8n</span><span class="project-tag">Lovable</span></div>
-          <p class="project-result" id="project2Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project2Link">View Details →</a>
+        <div class="project-detail-section" id="pdToolsSection">
+          <span class="project-detail-label">Tools</span>
+          <div class="project-detail-tags" id="pdTools"></div>
         </div>
 
-        <!-- Project Card 3 -->
-        <div class="project-card" id="project3">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project3Name">Education Attendance System</h3>
-            <span class="project-status" id="project3Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project3Problem">Manual/paper attendance is slow and error-prone.</p>
-          <div class="project-tags" id="project3Tags"><span class="project-tag">n8n</span><span class="project-tag">Lovable</span></div>
-          <p class="project-result" id="project3Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project3Link">View Details →</a>
+        <div class="project-detail-section" id="pdProcessSection">
+          <span class="project-detail-label">How I Built It</span>
+          <p class="project-detail-text" id="pdProcess"></p>
         </div>
 
-        <!-- Project Card 4 -->
-        <div class="project-card" id="project4">
-          <div class="project-card-header">
-            <h3 class="project-name" id="project4Name">AI Finance / Money Tracker</h3>
-            <span class="project-status" id="project4Status">In Development</span>
-          </div>
-          <p class="project-problem" id="project4Problem">Tracking expenses manually is tedious and inconsistent.</p>
-          <div class="project-tags" id="project4Tags"><span class="project-tag">Claude</span><span class="project-tag">n8n</span></div>
-          <p class="project-result" id="project4Result">Result: Coming soon</p>
-          <a href="#" class="project-link" id="project4Link">View Details →</a>
+        <div class="project-detail-section">
+          <span class="project-detail-label">Result</span>
+          <p class="project-detail-text" id="pdResult"></p>
         </div>
 
+        <div class="project-detail-cta" id="pdCta"></div>
       </div>
     </div>
   </section>
@@ -1444,29 +1978,9 @@
         <hr class="section-divider">
       </div>
 
-      <!-- Skills List -->
-      <div class="skills-list">
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill1Label">Automation</span>
-          <p class="skill-desc" id="skill1Desc">n8n — building reliable, end-to-end automated workflows.</p>
-        </div>
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill2Label">AI / LLM Tools</span>
-          <p class="skill-desc" id="skill2Desc">Claude — API integrations, autonomous agents, and AI-powered apps.</p>
-        </div>
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill3Label">App Building</span>
-          <p class="skill-desc" id="skill3Desc">Lovable — no-code/low-code application development.</p>
-        </div>
-
-        <div class="skill-row">
-          <span class="skill-label" id="skill4Label">Core Skill</span>
-          <p class="skill-desc" id="skill4Desc">Turning manual processes into automated systems.</p>
-        </div>
-
+      <!-- Skills List (rendered dynamically from the skills array in siteContent) -->
+      <div class="skills-list" id="skillsList">
+        <!-- Skill rows are injected here by renderSite() -->
       </div>
     </div>
   </section>
@@ -1478,6 +1992,42 @@
       <h2 class="contact-heading" id="contactHeading">Let's talk.</h2>
       <hr class="contact-divider">
       <p class="contact-subtext" id="contactSubtext">Open to freelance projects, collaborations, and opportunities in automation &amp; AI.</p>
+
+      <!-- Visible contact form (JS-submitted only) -->
+      <form class="contact-form" id="contactForm" novalidate>
+        <div class="contact-form-row">
+          <div class="contact-form-field">
+            <label for="cfName">Name</label>
+            <input type="text" id="cfName" name="name" placeholder="Your name" autocomplete="name" />
+            <span class="contact-form-error" data-error-for="cfName"></span>
+          </div>
+          <div class="contact-form-field">
+            <label for="cfEmail">Email</label>
+            <input type="email" id="cfEmail" name="email" placeholder="you@example.com" autocomplete="email" />
+            <span class="contact-form-error" data-error-for="cfEmail"></span>
+          </div>
+          <div class="contact-form-field full">
+            <label for="cfMessage">Your Message</label>
+            <textarea id="cfMessage" name="message" placeholder="Tell me about your project or question…"></textarea>
+            <span class="contact-form-error" data-error-for="cfMessage"></span>
+          </div>
+        </div>
+        <p class="contact-form-status" id="contactFormStatus"></p>
+        <div class="contact-form-submit" id="contactFormSubmitWrap">
+          <button type="submit" class="btn btn-primary" id="contactFormSubmit">Send Message</button>
+        </div>
+        <p class="contact-form-success" id="contactFormSuccess" hidden>Thanks! Your message has been sent — I'll get back to you soon.</p>
+      </form>
+
+      <!-- Static Netlify form definition so build bots detect and register the form.
+           Not submitted directly — the JS handler sends via fetch() to "/". -->
+      <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden style="display:none">
+        <input type="hidden" name="form-name" value="contact" />
+        <input type="text"   name="name" />
+        <input type="email"  name="email" />
+        <textarea name="message"></textarea>
+        <input type="hidden" name="bot-field" />
+      </form>
 
       <div class="contact-buttons">
         <a href="mailto:hello@example.com" class="btn btn-primary" id="contactEmailBtn">Email</a>
@@ -1491,7 +2041,7 @@
   <!-- Footer -->
   <footer class="site-footer fade-section">
     <div class="footer-top">
-      <p class="footer-brand"><span>AKN</span> — Automation &amp; AI Builder</p>
+      <p class="footer-brand" id="footerBrand"><span>AKN</span> — Automation &amp; AI Builder</p>
 
       <div class="footer-socials">
         <a href="https://linkedin.com/in/" target="_blank" rel="noopener noreferrer" class="footer-social-link" id="footerLinkedin" aria-label="LinkedIn">
@@ -1576,6 +2126,22 @@
           <input type="text" id="admAboutName" class="admin-input">
         </div>
         <div class="admin-field">
+          <label>Profile Photo</label>
+          <div class="admin-photo-row">
+            <img id="admAboutPhotoPreview" class="admin-photo-preview" alt="Photo preview">
+            <div class="admin-photo-actions">
+              <label for="admAboutPhoto" class="admin-btn admin-btn--small">Upload Photo</label>
+              <input type="file" id="admAboutPhoto" class="admin-file-input" accept="image/*">
+              <button type="button" id="admAboutPhotoClear" class="admin-link-btn hidden">Remove photo</button>
+              <p class="admin-field-hint">Upload a JPG/PNG (saved to the database automatically when you click Save Changes). You can also paste a public URL below.</p>
+            </div>
+          </div>
+        </div>
+        <div class="admin-field">
+          <label for="admAboutPhotoUrl">…or paste an image URL</label>
+          <input type="text" id="admAboutPhotoUrl" class="admin-input" placeholder="https://example.com/photo.jpg">
+        </div>
+        <div class="admin-field">
           <label for="admAboutBio">Bio</label>
           <textarea id="admAboutBio" class="admin-textarea"></textarea>
         </div>
@@ -1599,74 +2165,14 @@
         </div>
       </div>
 
-      <!-- Projects Fields -->
-      <div class="admin-section">
+      <!-- Projects Fields (dynamic list rendered by JS) -->
+      <div class="admin-section" id="admProjectsSection">
         <h3 class="admin-section-title">Projects</h3>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 1</span>
-          <div class="admin-field"><label for="admP1Name">Name</label><input type="text" id="admP1Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP1Status">Status</label>
-            <select id="admP1Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP1Problem">Problem</label><textarea id="admP1Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP1Tools">Tools (comma-separated)</label><input type="text" id="admP1Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP1Result">Result</label><input type="text" id="admP1Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP1Link">Link</label><input type="text" id="admP1Link" class="admin-input"></div>
+        <div id="admProjectsList">
+          <!-- Project cards are injected here by renderAdminProjects() -->
         </div>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 2</span>
-          <div class="admin-field"><label for="admP2Name">Name</label><input type="text" id="admP2Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP2Status">Status</label>
-            <select id="admP2Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP2Problem">Problem</label><textarea id="admP2Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP2Tools">Tools (comma-separated)</label><input type="text" id="admP2Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP2Result">Result</label><input type="text" id="admP2Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP2Link">Link</label><input type="text" id="admP2Link" class="admin-input"></div>
-        </div>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 3</span>
-          <div class="admin-field"><label for="admP3Name">Name</label><input type="text" id="admP3Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP3Status">Status</label>
-            <select id="admP3Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP3Problem">Problem</label><textarea id="admP3Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP3Tools">Tools (comma-separated)</label><input type="text" id="admP3Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP3Result">Result</label><input type="text" id="admP3Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP3Link">Link</label><input type="text" id="admP3Link" class="admin-input"></div>
-        </div>
-
-        <div class="admin-project-card">
-          <span class="admin-project-card-title">Project 4</span>
-          <div class="admin-field"><label for="admP4Name">Name</label><input type="text" id="admP4Name" class="admin-input"></div>
-          <div class="admin-field">
-            <label for="admP4Status">Status</label>
-            <select id="admP4Status" class="admin-select">
-              <option value="In Development">In Development</option>
-              <option value="Live Demo">Live Demo</option>
-            </select>
-          </div>
-          <div class="admin-field"><label for="admP4Problem">Problem</label><textarea id="admP4Problem" class="admin-textarea"></textarea></div>
-          <div class="admin-field"><label for="admP4Tools">Tools (comma-separated)</label><input type="text" id="admP4Tools" class="admin-input"></div>
-          <div class="admin-field"><label for="admP4Result">Result</label><input type="text" id="admP4Result" class="admin-input"></div>
-          <div class="admin-field"><label for="admP4Link">Link</label><input type="text" id="admP4Link" class="admin-input"></div>
-        </div>
-
+        <button type="button" id="admAddProjectBtn" class="admin-btn admin-btn--outline">+ Add Project</button>
+        <p class="admin-field-hint">Add as many projects as you like. Each card has a Remove button to delete it. Don't forget to click Save Changes after editing.</p>
       </div>
 
       <!-- Skills Fields -->
@@ -1750,13 +2256,14 @@
       email: "hello@example.com",
       linkedin: "https://linkedin.com/in/",
       github: "https://github.com/",
-      whatsapp: ""
+      whatsapp: "",
+      photo: ""       // base64 data URL (from upload) OR a public image URL (pasted)
     },
     projects: [
-      { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" },
-      { name: "Inventory Management System", status: "In Development", problem: "Manual stock tracking causes stockouts and overstock.", tools: ["n8n", "Lovable"], result: "Coming soon", link: "#" },
-      { name: "Education Attendance System", status: "In Development", problem: "Manual/paper attendance is slow and error-prone.", tools: ["n8n", "Lovable"], result: "Coming soon", link: "#" },
-      { name: "AI Finance / Money Tracker", status: "In Development", problem: "Tracking expenses manually is tedious and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", link: "#" }
+      { name: "Real Estate Website", status: "In Development", problem: "Property inquiries manually handled by agents are slow and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", process: "", link: "#" },
+      { name: "Inventory Management System", status: "In Development", problem: "Manual stock tracking causes stockouts and overstock.", tools: ["n8n", "Lovable"], result: "Coming soon", process: "", link: "#" },
+      { name: "Education Attendance System", status: "In Development", problem: "Manual/paper attendance is slow and error-prone.", tools: ["n8n", "Lovable"], result: "Coming soon", process: "", link: "#" },
+      { name: "AI Finance / Money Tracker", status: "In Development", problem: "Tracking expenses manually is tedious and inconsistent.", tools: ["Claude", "n8n"], result: "Coming soon", process: "", link: "#" }
     ],
     skills: [
       { label: "Automation", desc: "n8n — building reliable, end-to-end automated workflows." },
@@ -1785,23 +2292,59 @@
 
   // Mobile menu toggle
   const navToggle = document.getElementById('navToggle');
-  const navLinks = document.getElementById('navLinks');
+  const navLinksMobile = document.getElementById('navLinksMobile');
+  const navLinksDesktop = document.getElementById('navLinksDesktop');
+  const navBackdrop = document.getElementById('navBackdrop');
+
+  function openMobileMenu(){
+    navLinksMobile.classList.add('open');
+    navToggle.classList.add('open');
+    navToggle.setAttribute('aria-expanded', 'true');
+    navBackdrop.classList.add('show');
+    document.body.classList.add('nav-open');
+    navLinksMobile.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeMobileMenu(){
+    navLinksMobile.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    navBackdrop.classList.remove('show');
+    document.body.classList.remove('nav-open');
+    navLinksMobile.setAttribute('aria-hidden', 'true');
+  }
+
   navToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('open');
+    if (navLinksMobile.classList.contains('open')) {
+      closeMobileMenu();
+    } else {
+      openMobileMenu();
+    }
   });
 
-  // Smooth scroll for all nav links (accounts for sticky navbar height)
+  // Close menu when tapping the backdrop
+  if (navBackdrop){
+    navBackdrop.addEventListener('click', closeMobileMenu);
+  }
+
+  // Smooth scroll for nav links (both desktop inline and mobile panel).
+  // Accounts for sticky navbar height and closes mobile menu on tap.
   document.querySelectorAll('.navbar-link').forEach(link => {
     link.addEventListener('click', (e) => {
       const targetId = link.getAttribute('href');
       const targetEl = document.querySelector(targetId);
       if (targetEl) {
         e.preventDefault();
-        const navHeight = navbar.offsetHeight;
-        const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight + 1;
-        window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        closeMobileMenu();
+        // Small delay so the menu-closing animation starts before scroll.
+        setTimeout(() => {
+          const navHeight = navbar.offsetHeight;
+          const targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight + 1;
+          window.scrollTo({ top: targetPosition, behavior: 'smooth' });
+        }, 50);
+      } else {
+        closeMobileMenu();
       }
-      navLinks.classList.remove('open');
     });
   });
 
@@ -1903,6 +2446,12 @@
       setText('heroSubtitle', content.hero.subtitle);
       setText('heroByline', content.hero.byline);
       setText('heroTagline', content.hero.tagline);
+
+      // Keep footer brand in sync: "AKN — <hero.subtitle>"
+      const footerBrand = document.getElementById('footerBrand');
+      if (footerBrand) {
+        footerBrand.innerHTML = '<span>AKN</span> — ' + (content.hero.subtitle || 'Automation &amp; AI Builder');
+      }
     }
 
     // About
@@ -1910,6 +2459,22 @@
       setText('aboutName', content.about.name);
       setText('aboutBio', content.about.bio);
       renderTagList('aboutTags', content.about.tags, 'about-tag');
+
+      // Profile photo — show image if set, otherwise show placeholder
+      const photoSrc = (content.about.photo || '').trim();
+      const photoImg = document.getElementById('aboutPhotoImg');
+      const photoPlaceholder = document.getElementById('aboutPhotoPlaceholder');
+      if (photoImg && photoPlaceholder) {
+        if (photoSrc) {
+          photoImg.setAttribute('src', photoSrc);
+          photoImg.classList.add('visible');
+          photoPlaceholder.style.display = 'none';
+        } else {
+          photoImg.removeAttribute('src');
+          photoImg.classList.remove('visible');
+          photoPlaceholder.style.display = '';
+        }
+      }
 
       const email = (content.about.email || '').trim();
       const linkedin = (content.about.linkedin || '').trim();
@@ -1945,35 +2510,314 @@
       }
     }
 
-    // Projects
-    (content.projects || []).forEach((p, idx) => {
-      const i = idx + 1;
-      setText('project' + i + 'Name', p.name);
+    // Projects — dynamically render a card for every project in the array
+    const projectsGrid = document.getElementById('projectsGrid');
+    if (projectsGrid) {
+      projectsGrid.innerHTML = '';
+      (content.projects || []).forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = 'project-card';
 
-      const statusEl = document.getElementById('project' + i + 'Status');
-      if (statusEl) {
-        statusEl.textContent = p.status;
-        statusEl.classList.toggle('status-live', p.status === 'Live Demo');
-      }
+        // Header: name + status badge
+        const header = document.createElement('div');
+        header.className = 'project-card-header';
 
-      setText('project' + i + 'Problem', p.problem);
-      renderTagList('project' + i + 'Tags', p.tools, 'project-tag');
-      setText('project' + i + 'Result', 'Result: ' + (p.result || ''));
-      setHref('project' + i + 'Link', p.link);
-    });
+        const nameEl = document.createElement('h3');
+        nameEl.className = 'project-name';
+        nameEl.textContent = p.name || '';
+        header.appendChild(nameEl);
 
-    // Skills
-    (content.skills || []).forEach((s, idx) => {
-      const i = idx + 1;
-      setText('skill' + i + 'Label', s.label);
-      setText('skill' + i + 'Desc', s.desc);
-    });
+        const statusEl = document.createElement('span');
+        // Start with the base (grey) class only
+        statusEl.className = 'project-status';
+        const statusText = (p.status || 'In Development').trim();
+        statusEl.textContent = statusText;
+        const s = statusText.toLowerCase();
+        if (s === 'live demo' || s === 'ready' || s === 'live') {
+          statusEl.classList.add('status-live');
+        } else if (s === 'almost ready' || s === 'coming soon' || s === 'nearly done') {
+          statusEl.classList.add('status-soon');
+        }
+        // Anything else (including "In Development") keeps the default grey style
+        header.appendChild(statusEl);
+        card.appendChild(header);
+
+        // Problem
+        const problemEl = document.createElement('p');
+        problemEl.className = 'project-problem';
+        problemEl.textContent = p.problem || '';
+        card.appendChild(problemEl);
+
+        // Tags (tools)
+        const tagsEl = document.createElement('div');
+        tagsEl.className = 'project-tags';
+        (p.tools || []).forEach(t => {
+          if (!t) return;
+          const s = document.createElement('span');
+          s.className = 'project-tag';
+          s.textContent = t;
+          tagsEl.appendChild(s);
+        });
+        card.appendChild(tagsEl);
+
+        // Result
+        const resultEl = document.createElement('p');
+        resultEl.className = 'project-result';
+        resultEl.textContent = 'Result: ' + (p.result || '');
+        card.appendChild(resultEl);
+
+        // Link — navigates to internal detail page via hash route
+        const slug = projectSlug(p.name, idx);
+        const linkEl = document.createElement('a');
+        linkEl.className = 'project-link';
+        linkEl.href = '#project/' + slug;
+        linkEl.textContent = 'View Details →';
+        linkEl.setAttribute('data-project-slug', slug);
+        card.appendChild(linkEl);
+
+        projectsGrid.appendChild(card);
+      });
+    }
+
+    // Skills — dynamically render rows with icon + dot rating
+    const skillsList = document.getElementById('skillsList');
+    if (skillsList) {
+      skillsList.innerHTML = '';
+      (content.skills || []).forEach((s) => {
+        const row = document.createElement('div');
+        row.className = 'skill-row';
+
+        // LEFT column: icon + label + dot rating
+        const left = document.createElement('div');
+        left.className = 'skill-left';
+
+        const head = document.createElement('div');
+        head.className = 'skill-head';
+
+        // Pick an icon (SVG) and accent color based on label keywords
+        const iconInfo = pickSkillIcon(s.label || '');
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'skill-icon' + (iconInfo.amber ? ' icon-amber' : '');
+        iconWrap.innerHTML = iconInfo.svg;
+        iconWrap.setAttribute('aria-hidden', 'true');
+        head.appendChild(iconWrap);
+
+        const labelEl = document.createElement('span');
+        labelEl.className = 'skill-label';
+        labelEl.textContent = s.label || '';
+        head.appendChild(labelEl);
+        left.appendChild(head);
+
+        // Dot rating (5 dots)
+        const rating = document.createElement('div');
+        rating.className = 'skill-rating';
+        const level = pickSkillLevel(s);
+        for (let d = 1; d <= 5; d++){
+          const dot = document.createElement('span');
+          dot.className = 'skill-dot';
+          if (d <= level) {
+            dot.classList.add('filled');
+            if (iconInfo.amber) dot.classList.add('amber');
+          }
+          rating.appendChild(dot);
+        }
+        left.appendChild(rating);
+
+        row.appendChild(left);
+
+        // RIGHT column: description
+        const descEl = document.createElement('p');
+        descEl.className = 'skill-desc';
+        descEl.textContent = s.desc || '';
+        row.appendChild(descEl);
+
+        skillsList.appendChild(row);
+      });
+    }
 
     // Contact
     if (content.contact) {
       setText('contactHeading', content.contact.heading);
       setText('contactSubtext', content.contact.subtext);
     }
+  }
+
+  // Pick a small line-style SVG icon for a skill based on keyword matching.
+  // Returns { svg, amber }. Falls back to a star/spark icon.
+  function pickSkillIcon(label){
+    const L = (label || '').toLowerCase();
+    // Automation — gears / workflow
+    if (/automat|workflow|n8n|zapier/i.test(L)){
+      return { amber: false, svg:
+        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>'
+      };
+    }
+    // AI / LLM — sparkles/brain
+    if (/ai|llm|claude|gpt|model|machine learning|ml/i.test(L)){
+      return { amber: false, svg:
+        '<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"></path><circle cx="12" cy="12" r="3.5"></circle></svg>'
+      };
+    }
+    // App Building — layout/code
+    if (/app|build|develop|code|frontend|backend|lovable|web/i.test(L)){
+      return { amber: false, svg:
+        '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M3 9h18"></path><path d="M8 6.5h.01M11.5 6.5h.01M15 6.5h.01"></path><path d="m9 14-2 2 2 2M15 14l2 2-2 2"></path></svg>'
+      };
+    }
+    // Core skill / specialization — target/flag (amber to make it pop)
+    if (/core|special|focus|expert|master/i.test(L)){
+      return { amber: true, svg:
+        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"></circle></svg>'
+      };
+    }
+    // Fallback — zap/bolt
+    return { amber: false, svg:
+      '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"></path></svg>'
+    };
+  }
+
+  // Pick a proficiency level (1-5 dots) based on keywords in label/desc.
+  // Defaults to a strong 4-5 so the indicator looks purposeful.
+  function pickSkillLevel(s){
+    const text = ((s.label || '') + ' ' + (s.desc || '')).toLowerCase();
+    if (/core|expert|master|special|turning manual/i.test(text)) return 5;
+    if (/building|reliable|end-to-end|api integrat|autonomou/i.test(text)) return 5;
+    if (/ai|llm|claude/i.test(text)) return 5;
+    if (/nocode|no-code|low-code|lovable/i.test(text)) return 4;
+    return 4;
+  }
+
+  // ============================================================
+  // PROJECT DETAIL ROUTING (hash-based: #project/<slug>)
+  // ============================================================
+  function projectSlug(name, fallbackIdx){
+    const base = String(name || 'project-' + (fallbackIdx != null ? fallbackIdx : 0))
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return base || ('project-' + (fallbackIdx != null ? fallbackIdx : 0));
+  }
+
+  function findProjectBySlug(slug){
+    if (!slug || !siteContent || !Array.isArray(siteContent.projects)) return null;
+    const projects = siteContent.projects;
+    // First pass: exact slug match
+    for (let i = 0; i < projects.length; i++){
+      if (projectSlug(projects[i].name, i) === slug) return projects[i];
+    }
+    return null;
+  }
+
+  function statusClassFor(text){
+    const s = (text || '').toLowerCase();
+    if (s === 'live demo' || s === 'ready' || s === 'live') return 'status-live';
+    if (s === 'almost ready' || s === 'coming soon' || s === 'nearly done') return 'status-soon';
+    return '';
+  }
+
+  function renderProjectDetail(project){
+    const detail  = document.getElementById('projectDetail');
+    const grid    = document.getElementById('projectsGrid');
+    const sub     = document.getElementById('projectsSubtext');
+    const status  = document.getElementById('pdStatus');
+    const title   = document.getElementById('pdTitle');
+    const problem = document.getElementById('pdProblem');
+    const toolsEl = document.getElementById('pdTools');
+    const toolsSec= document.getElementById('pdToolsSection');
+    const procSec = document.getElementById('pdProcessSection');
+    const proc    = document.getElementById('pdProcess');
+    const result  = document.getElementById('pdResult');
+    const ctaWrap = document.getElementById('pdCta');
+    const headingWrap = document.querySelector('#projects .section-heading-wrap');
+    if (!detail) return;
+
+    if (!project){
+      // Back to grid view
+      detail.classList.remove('active');
+      if (grid) grid.classList.remove('hidden');
+      if (sub)  sub.classList.remove('hidden');
+      if (headingWrap) headingWrap.style.display = '';
+      window.scrollTo({ top: document.getElementById('projects').offsetTop - navbar.offsetHeight, behavior: 'instant' in window ? 'instant' : 'auto' });
+      return;
+    }
+
+    // Populate fields
+    status.textContent = project.status || 'In Development';
+    status.className = 'project-detail-status ' + statusClassFor(project.status);
+    title.textContent = project.name || '';
+    problem.textContent = project.problem || '';
+    result.textContent = project.result || '';
+
+    // Tools
+    toolsEl.innerHTML = '';
+    (project.tools || []).forEach(t => {
+      if (!t) return;
+      const s = document.createElement('span');
+      s.className = 'project-tag';
+      s.textContent = t;
+      toolsEl.appendChild(s);
+    });
+    toolsSec.style.display = (project.tools && project.tools.length) ? '' : 'none';
+
+    // Process (only show section if filled in)
+    if (project.process && project.process.trim()){
+      proc.textContent = project.process;
+      procSec.style.display = '';
+    } else {
+      proc.textContent = '';
+      procSec.style.display = 'none';
+    }
+
+    // Visit Live Demo CTA (only when link is real)
+    ctaWrap.innerHTML = '';
+    if (project.link && project.link.trim() !== '#' && project.link.trim().length > 0){
+      const btn = document.createElement('a');
+      btn.className = 'btn btn-primary';
+      btn.href = project.link;
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.textContent = 'Visit Live Demo →';
+      ctaWrap.appendChild(btn);
+    }
+
+    // Show detail, hide grid
+    detail.classList.add('active');
+    if (grid) grid.classList.add('hidden');
+    if (sub)  sub.classList.add('hidden');
+    if (headingWrap) headingWrap.style.display = 'none';
+
+    // Scroll to top of projects section
+    setTimeout(() => {
+      const top = document.getElementById('projects').getBoundingClientRect().top + window.pageYOffset - navbar.offsetHeight + 1;
+      window.scrollTo({ top: top, behavior: 'smooth' });
+    }, 30);
+  }
+
+  function handleRoute(){
+    const hash = window.location.hash || '';
+    const match = hash.match(/^#project\/(.+)$/);
+    if (match){
+      const slug = decodeURIComponent(match[1]);
+      renderProjectDetail(findProjectBySlug(slug));
+    } else {
+      renderProjectDetail(null);
+    }
+  }
+
+  // Wire router
+  window.addEventListener('hashchange', handleRoute);
+  const backBtn = document.getElementById('projectDetailBack');
+  if (backBtn){
+    backBtn.addEventListener('click', () => {
+      // If history has a previous #project entry, go back; otherwise clear hash
+      if (document.referrer && window.history.length > 1){
+        window.history.back();
+        // Fallback in case history.back doesn't clear the hash
+        setTimeout(() => { if (window.location.hash.startsWith('#project/')) window.location.hash = ''; }, 100);
+      } else {
+        window.location.hash = '';
+      }
+    });
   }
 
   // ============================================================
@@ -1991,7 +2835,19 @@
     setTimeout(() => fetchWarning.classList.remove('show'), 5000);
   }
 
+  function renderAndRoute(content){
+    renderSite(content);
+    handleRoute();
+  }
+
   async function loadContent(){
+    // Render the built-in default content immediately so the page is never
+    // blocked behind a spinner. The Supabase fetch runs in the background
+    // and updates the DOM in place if/when it succeeds.
+    siteContent = DEFAULT_CONTENT;
+    renderAndRoute(siteContent);
+    hideLoadingOverlay();
+
     try {
       const { data, error } = await supabaseClient
         .from(TABLE_NAME)
@@ -2004,14 +2860,11 @@
       }
 
       siteContent = data.content;
+      renderAndRoute(siteContent);
     } catch (err) {
-      console.warn('Falling back to default content — could not load from Supabase:', err);
-      siteContent = DEFAULT_CONTENT;
+      console.warn('Could not load from Supabase — staying on default content:', err);
       showFetchWarning();
     }
-
-    renderSite(siteContent);
-    hideLoadingOverlay();
   }
 
   // ============================================================
@@ -2084,6 +2937,174 @@
   function val(id){ return document.getElementById(id).value; }
   function setVal(id, v){ document.getElementById(id).value = v !== undefined && v !== null ? v : ''; }
 
+  // ============================================================
+  // DYNAMIC ADMIN PROJECTS LIST
+  // ============================================================
+  // In-memory working copy while the admin form is open. Each project
+  // object has { name, status, problem, tools, result, link }. The form
+  // is re-rendered from this array whenever a project is added/removed,
+  // so field names don't collide or go stale.
+  let adminProjects = [];
+
+  function emptyProject(){
+    return { name: '', status: 'In Development', problem: '', tools: [], result: '', link: '' };
+  }
+
+  function projectFieldId(prefix, idx, suffix){
+    return `${prefix}P${idx}${suffix}`;
+  }
+
+  function renderAdminProjects(projects){
+    adminProjects = (projects || []).map(p => ({
+      name: p.name || '',
+      status: p.status || 'In Development',
+      problem: p.problem || '',
+      tools: Array.isArray(p.tools) ? p.tools.slice() : [],
+      result: p.result || '',
+      link: p.link || ''
+    }));
+
+    const list = document.getElementById('admProjectsList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (adminProjects.length === 0){
+      const empty = document.createElement('p');
+      empty.className = 'admin-project-empty';
+      empty.textContent = 'No projects yet. Click "+ Add Project" to create your first one.';
+      list.appendChild(empty);
+      return;
+    }
+
+    adminProjects.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.className = 'admin-project-card';
+      card.dataset.index = String(idx);
+
+      // Title + remove button
+      const title = document.createElement('span');
+      title.className = 'admin-project-card-title';
+      title.textContent = 'Project ' + (idx + 1);
+      card.appendChild(title);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'admin-project-remove';
+      removeBtn.textContent = 'Remove';
+      removeBtn.addEventListener('click', () => removeAdminProject(idx));
+      card.appendChild(removeBtn);
+
+      // Name
+      card.appendChild(makeField('text',   `admP${idx}Name`,    'Name',           p.name));
+      // Status
+      const statusField = document.createElement('div');
+      statusField.className = 'admin-field';
+      const statusLabel = document.createElement('label');
+      statusLabel.setAttribute('for', `admP${idx}Status`);
+      statusLabel.textContent = 'Status';
+      statusField.appendChild(statusLabel);
+      const statusSel = document.createElement('select');
+      statusSel.id = `admP${idx}Status`;
+      statusSel.className = 'admin-select';
+      const statusOptions = ['In Development', 'Almost Ready', 'Ready', 'Live Demo'];
+      // Preserve custom status text if the saved value isn't one of our presets
+      const currentStatus = p.status || 'In Development';
+      if (!statusOptions.includes(currentStatus)) {
+        const o = document.createElement('option');
+        o.value = currentStatus; o.textContent = currentStatus;
+        o.selected = true;
+        statusSel.appendChild(o);
+      }
+      statusOptions.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt; o.textContent = opt;
+        if (opt === currentStatus) o.selected = true;
+        statusSel.appendChild(o);
+      });
+      statusField.appendChild(statusSel);
+      card.appendChild(statusField);
+      // Problem
+      card.appendChild(makeField('textarea', `admP${idx}Problem`, 'Problem',             p.problem));
+      // Tools
+      card.appendChild(makeField('text',     `admP${idx}Tools`,   'Tools (comma-separated)', (p.tools || []).join(', ')));
+      // Result
+      card.appendChild(makeField('text',     `admP${idx}Result`,  'Result',              p.result));
+      // Process / How I Built It
+      card.appendChild(makeField('textarea', `admP${idx}Process`, 'Process / How I Built It', p.process || ''));
+      // Link
+      card.appendChild(makeField('text',     `admP${idx}Link`,    'Link',                p.link));
+
+      list.appendChild(card);
+    });
+  }
+
+  function makeField(type, id, labelText, value){
+    const wrap = document.createElement('div');
+    wrap.className = 'admin-field';
+    const label = document.createElement('label');
+    label.setAttribute('for', id);
+    label.textContent = labelText;
+    wrap.appendChild(label);
+    let input;
+    if (type === 'textarea'){
+      input = document.createElement('textarea');
+      input.className = 'admin-textarea';
+      input.textContent = value || '';
+    } else {
+      input = document.createElement('input');
+      input.type = type;
+      input.className = 'admin-input';
+      input.value = value || '';
+    }
+    input.id = id;
+    wrap.appendChild(input);
+    return wrap;
+  }
+
+  function addAdminProject(){
+    // Pull whatever the user has typed into the current form into
+    // adminProjects first, so we don't lose in-progress edits.
+    syncAdminProjectsFromForm();
+    adminProjects.push(emptyProject());
+    renderAdminProjects(adminProjects);
+    // Scroll the new card into view so the user sees it.
+    const list = document.getElementById('admProjectsList');
+    if (list && list.lastElementChild) {
+      list.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  function removeAdminProject(idx){
+    if (!confirm('Remove this project? This cannot be undone (until you click Save Changes, you can still cancel by leaving the page without saving).')) return;
+    syncAdminProjectsFromForm();
+    adminProjects.splice(idx, 1);
+    renderAdminProjects(adminProjects);
+  }
+
+  // Read the currently rendered admin project form fields back into
+  // adminProjects so add/remove don't discard in-progress edits.
+  function syncAdminProjectsFromForm(){
+    adminProjects.forEach((_, idx) => {
+      const nameEl    = document.getElementById(`admP${idx}Name`);
+      const statusEl  = document.getElementById(`admP${idx}Status`);
+      const probEl    = document.getElementById(`admP${idx}Problem`);
+      const toolsEl   = document.getElementById(`admP${idx}Tools`);
+      const resultEl  = document.getElementById(`admP${idx}Result`);
+      const processEl = document.getElementById(`admP${idx}Process`);
+      const linkEl    = document.getElementById(`admP${idx}Link`);
+      if (!nameEl) return; // card not currently rendered / mismatch
+      adminProjects[idx] = {
+        name: nameEl.value,
+        status: statusEl ? statusEl.value : 'In Development',
+        problem: probEl ? probEl.value : '',
+        tools: toolsEl ? toolsEl.value.split(',').map(t => t.trim()).filter(t => t.length > 0) : [],
+        result: resultEl ? resultEl.value : '',
+        process: processEl ? processEl.value : '',
+        link: linkEl ? linkEl.value : ''
+      };
+    });
+  }
+
   function populateAdminForm(){
     const c = siteContent || DEFAULT_CONTENT;
 
@@ -2101,16 +3122,35 @@
     setVal('admGithub', c.about && c.about.github);
     setVal('admWhatsapp', c.about && c.about.whatsapp);
 
-    // Projects
-    (c.projects || []).forEach((p, idx) => {
-      const i = idx + 1;
-      setVal('admP' + i + 'Name', p.name);
-      setVal('admP' + i + 'Status', p.status);
-      setVal('admP' + i + 'Problem', p.problem);
-      setVal('admP' + i + 'Tools', (p.tools || []).join(', '));
-      setVal('admP' + i + 'Result', p.result);
-      setVal('admP' + i + 'Link', p.link);
-    });
+    // Photo: if current photo is a data: URL we show preview + keep URL field empty;
+    // if it's a http(s) URL we put it in the URL field and preview it.
+    const existingPhoto = (c.about && c.about.photo) ? c.about.photo.trim() : '';
+    const photoPreview = document.getElementById('admAboutPhotoPreview');
+    const photoUrlInput = document.getElementById('admAboutPhotoUrl');
+    const admPhotoFile = document.getElementById('admAboutPhoto');
+    const clearBtn = document.getElementById('admAboutPhotoClear');
+    // Reset UI state
+    if (admPhotoFile) admPhotoFile.value = '';
+    window.__admPhotoData = ''; // fresh uploaded data URL (overrides URL field)
+    if (existingPhoto && /^data:image\//i.test(existingPhoto)) {
+      photoPreview.src = existingPhoto;
+      photoPreview.classList.add('has-photo');
+      photoUrlInput.value = '';
+      clearBtn.classList.remove('hidden');
+    } else if (existingPhoto && /^https?:\/\//i.test(existingPhoto)) {
+      photoPreview.src = existingPhoto;
+      photoPreview.classList.add('has-photo');
+      photoUrlInput.value = existingPhoto;
+      clearBtn.classList.remove('hidden');
+    } else {
+      photoPreview.removeAttribute('src');
+      photoPreview.classList.remove('has-photo');
+      photoUrlInput.value = '';
+      if (clearBtn) clearBtn.classList.add('hidden');
+    }
+
+    // Projects (dynamic list)
+    renderAdminProjects(c.projects || []);
 
     // Skills
     (c.skills || []).forEach((s, idx) => {
@@ -2127,17 +3167,19 @@
   function buildContentFromForm(){
     const previous = siteContent || DEFAULT_CONTENT;
 
-    const projects = [];
-    for (let i = 1; i <= 4; i++){
-      projects.push({
-        name: val('admP' + i + 'Name').trim(),
-        status: val('admP' + i + 'Status'),
-        problem: val('admP' + i + 'Problem').trim(),
-        tools: val('admP' + i + 'Tools').split(',').map(t => t.trim()).filter(t => t.length > 0),
-        result: val('admP' + i + 'Result').trim(),
-        link: val('admP' + i + 'Link').trim() || '#'
-      });
-    }
+    // Pull latest values from the dynamic project form fields
+    syncAdminProjectsFromForm();
+    const projects = adminProjects.map(p => ({
+      name: (p.name || '').trim(),
+      status: p.status || 'In Development',
+      problem: (p.problem || '').trim(),
+      tools: Array.isArray(p.tools)
+        ? p.tools.map(t => (t || '').trim()).filter(t => t.length > 0)
+        : [],
+      result: (p.result || '').trim(),
+      process: (p.process || '').trim(),
+      link: (p.link || '').trim() || '#'
+    })).filter(p => p.name.length > 0 || p.problem.length > 0); // drop fully-empty cards
 
     const skills = [];
     for (let i = 1; i <= 4; i++){
@@ -2163,7 +3205,14 @@
         email: val('admEmail').trim(),
         linkedin: val('admLinkedin').trim(),
         github: val('admGithub').trim(),
-        whatsapp: val('admWhatsapp').trim()
+        whatsapp: val('admWhatsapp').trim(),
+        // Prefer freshly uploaded data URL; otherwise fall back to pasted URL;
+        // if neither, keep the previous photo (so re-saving without changing it
+        // doesn't wipe out an already-uploaded image).
+        photo: (window.__admPhotoData && window.__admPhotoData.length)
+          ? window.__admPhotoData
+          : (val('admAboutPhotoUrl').trim()
+              || ((previous.about && previous.about.photo) ? previous.about.photo : ''))
       },
       projects: projects,
       skills: skills,
@@ -2197,7 +3246,7 @@
       if (error) throw error;
 
       siteContent = newContent;
-      renderSite(siteContent);
+      renderAndRoute(siteContent);
       saveSuccessMsg.classList.remove('hidden');
       setTimeout(() => saveSuccessMsg.classList.add('hidden'), 4000);
     } catch (err) {
@@ -2210,6 +3259,203 @@
   }
 
   document.getElementById('saveChangesBtn').addEventListener('click', saveChanges);
+
+  // Dynamic "Add Project" button
+  const addProjectBtn = document.getElementById('admAddProjectBtn');
+  if (addProjectBtn) addProjectBtn.addEventListener('click', addAdminProject);
+
+  // ============================================================
+  // PROFILE PHOTO UPLOAD (Admin)
+  // ============================================================
+  window.__admPhotoData = ''; // holds a freshly picked data URL until save
+  const admPhotoFile   = document.getElementById('admAboutPhoto');
+  const admPhotoPrev   = document.getElementById('admAboutPhotoPreview');
+  const admPhotoUrl    = document.getElementById('admAboutPhotoUrl');
+  const admPhotoClear  = document.getElementById('admAboutPhotoClear');
+
+  function showPhotoPreview(src){
+    if (!admPhotoPrev) return;
+    if (src) {
+      admPhotoPrev.src = src;
+      admPhotoPrev.classList.add('has-photo');
+      if (admPhotoClear) admPhotoClear.classList.remove('hidden');
+    } else {
+      admPhotoPrev.removeAttribute('src');
+      admPhotoPrev.classList.remove('has-photo');
+      if (admPhotoClear) admPhotoClear.classList.add('hidden');
+    }
+  }
+
+  if (admPhotoFile){
+    admPhotoFile.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (JPG, PNG, etc.).');
+        return;
+      }
+      // Limit: warn (but allow) over ~2MB so they don't blow up Supabase.
+      if (file.size > 3 * 1024 * 1024){
+        const ok = confirm('This image is larger than 3MB. It may still work but will increase load time. Continue?');
+        if (!ok) { admPhotoFile.value=''; return; }
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        window.__admPhotoData = ev.target.result;
+        showPhotoPreview(ev.target.result);
+        // Clear URL field when a file is chosen (data URL wins)
+        if (admPhotoUrl) admPhotoUrl.value = '';
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  if (admPhotoUrl){
+    admPhotoUrl.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url && /^https?:\/\//i.test(url)) {
+        window.__admPhotoData = '';
+        if (admPhotoFile) admPhotoFile.value = '';
+        showPhotoPreview(url);
+      } else if (!url && !window.__admPhotoData) {
+        showPhotoPreview('');
+      }
+    });
+  }
+
+  if (admPhotoClear){
+    admPhotoClear.addEventListener('click', () => {
+      window.__admPhotoData = '';
+      if (admPhotoFile) admPhotoFile.value = '';
+      if (admPhotoUrl) admPhotoUrl.value = '';
+      showPhotoPreview('');
+    });
+  }
+
+  // ============================================================
+  // CONTACT FORM SUBMISSION
+  // ============================================================
+  function initContactForm(){
+    var form       = document.getElementById('contactForm');
+    var submitBtn  = document.getElementById('contactFormSubmit');
+    var statusEl   = document.getElementById('contactFormStatus');
+    var successEl  = document.getElementById('contactFormSuccess');
+    var submitWrap = document.getElementById('contactFormSubmitWrap');
+    var fieldsRow  = form ? form.querySelector('.contact-form-row') : null;
+    if (!form) return;
+    var originalBtnText = submitBtn ? submitBtn.textContent : 'Send Message';
+
+    function $(id){ return document.getElementById(id); }
+
+    function setError(id, msg){
+      var input = $(id);
+      var err = form.querySelector('[data-error-for="'+id+'"]');
+      if (input && input.closest('.contact-form-field')){
+        input.closest('.contact-form-field').classList.add('has-error');
+      }
+      if (err){ err.textContent = msg||''; err.classList.toggle('show', !!msg); }
+    }
+    function clearErrors(){
+      form.querySelectorAll('.contact-form-field.has-error').forEach(function(f){ f.classList.remove('has-error'); });
+      form.querySelectorAll('.contact-form-error').forEach(function(e){ e.textContent=''; e.classList.remove('show'); });
+      if (statusEl){ statusEl.textContent=''; statusEl.classList.remove('error'); }
+    }
+
+    function encode(data){
+      return Object.keys(data).map(function(k){
+        return encodeURIComponent(k) + '=' + encodeURIComponent(data[k] == null ? '' : data[k]);
+      }).join('&');
+    }
+
+    function showSuccess(){
+      if (fieldsRow)  fieldsRow.style.display  = 'none';
+      if (submitWrap) submitWrap.style.display = 'none';
+      if (statusEl)   statusEl.textContent     = '';
+      if (successEl)  successEl.classList.add('show');
+      form.reset();
+    }
+    function showError(){
+      if (statusEl){
+        statusEl.textContent = 'Something went wrong. Please try emailing directly instead.';
+        statusEl.classList.add('error');
+      }
+    }
+
+    function handleSubmit(ev){
+      if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+      clearErrors();
+
+      var name    = ($('cfName')    ? $('cfName').value    : '').trim();
+      var email   = ($('cfEmail')   ? $('cfEmail').value   : '').trim();
+      var message = ($('cfMessage') ? $('cfMessage').value : '').trim();
+
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      var hasError = false;
+      if (!name){ setError('cfName','Please enter your name.'); hasError=true; }
+      if (!email || !emailRegex.test(email)){ setError('cfEmail','Please enter a valid email address.'); hasError=true; }
+      if (!message){ setError('cfMessage','Please write a message before sending.'); hasError=true; }
+      if (hasError) return false;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+      if (statusEl){ statusEl.textContent=''; statusEl.classList.remove('error'); }
+
+      // Netlify forms AJAX spec: POST to "/" with URL-encoded body,
+      // form-name MUST be the FIRST parameter in the body.
+      var body = encode({
+        'form-name': 'contact',
+        'name':      name,
+        'email':     email,
+        'message':   message,
+        'bot-field': ''
+      });
+
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      }).then(function(res){
+        // Netlify returns a 302 redirect; fetch follows it and resolves with
+        // the final / page response. Any non-5xx means Netlify accepted it.
+        if (res.ok || res.status < 500){
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+          showSuccess();
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalBtnText;
+          showError();
+        }
+      }).catch(function(err){
+        console.error('Contact form submission failed:', err);
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+        showError();
+      });
+
+      return false;
+    }
+
+    form.addEventListener('submit', handleSubmit);
+
+    // Clear errors on input
+    ['cfName','cfEmail','cfMessage'].forEach(function(id){
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener('input', function(){
+        var field = el.closest('.contact-form-field');
+        var err = form.querySelector('[data-error-for="'+id+'"]');
+        if (field) field.classList.remove('has-error');
+        if (err){ err.textContent=''; err.classList.remove('show'); }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initContactForm);
+  } else {
+    initContactForm();
+  }
 
   // ============================================================
   // INIT
