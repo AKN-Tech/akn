@@ -937,6 +937,90 @@
     font-weight: 600;
   }
 
+  /* ===== Testimonials Section ===== */
+  #testimonials{
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 10vh clamp(1.25rem, 6vw, 4.5rem);
+    position: relative;
+  }
+  #testimonials[hidden]{ display: none !important; }
+
+  .testimonials-container{
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .testimonials-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
+    gap: 1.6rem;
+  }
+
+  .testimonial-card{
+    position: relative;
+    background-color: var(--panel);
+    border: 1px solid rgba(29, 158, 117, 0.2);
+    border-radius: 12px;
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .testimonial-card:hover{
+    transform: translateY(-4px);
+    border-color: rgba(250, 199, 117, 0.45);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+  }
+
+  .testimonial-quote-mark{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--amber);
+    opacity: 0.6;
+  }
+
+  .testimonial-quote{
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: rgba(234, 234, 230, 0.9);
+    font-style: italic;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .testimonial-divider{
+    width: 36px;
+    height: 2px;
+    background-color: var(--teal);
+    opacity: 0.6;
+    margin: 0.2rem 0 0.1rem;
+  }
+
+  .testimonial-name{
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--amber);
+  }
+  .testimonial-role{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-top: -0.65rem;
+  }
+
+  @media (max-width: 480px){
+    .testimonial-card{ padding: 1.3rem; }
+    .testimonials-grid{ grid-template-columns: 1fr !important; gap: 1.2rem; }
+  }
+
   /* ===== Contact Section ===== */
   #contact{
     background-color: var(--bg);
@@ -2160,6 +2244,20 @@
     </div>
   </section>
 
+  <!-- Testimonials Section (hidden when empty) -->
+  <section id="testimonials" class="fade-section" hidden>
+    <div class="testimonials-container">
+      <div class="section-heading-wrap">
+        <span class="section-label">What People Say</span>
+        <h2 class="section-heading">Testimonials</h2>
+        <hr class="section-divider">
+      </div>
+      <div class="testimonials-grid" id="testimonialsGrid">
+        <!-- Testimonial cards injected here by renderSite() -->
+      </div>
+    </div>
+  </section>
+
   <!-- Contact Section -->
   <section id="contact" class="fade-section">
     <div class="contact-container">
@@ -2373,6 +2471,16 @@
 
       </div>
 
+      <!-- Testimonials Fields (dynamic list rendered by JS) -->
+      <div class="admin-section" id="admTestimonialsSection">
+        <h3 class="admin-section-title">Testimonials</h3>
+        <div id="admTestimonialsList">
+          <!-- Testimonial cards injected here by renderAdminTestimonials() -->
+        </div>
+        <button type="button" id="admAddTestimonialBtn" class="admin-btn admin-btn--outline">+ Add Testimonial</button>
+        <p class="admin-field-hint">Add client/mentor quotes. The Testimonials section on the site will be hidden automatically until you add at least one.</p>
+      </div>
+
       <!-- Contact Fields -->
       <div class="admin-section">
         <h3 class="admin-section-title">Contact</h3>
@@ -2446,6 +2554,7 @@
       { label: "App Building", desc: "Lovable — no-code/low-code application development." },
       { label: "Core Skill", desc: "Turning manual processes into automated systems." }
     ],
+    testimonials: [],
     contact: {
       heading: "Let's talk.",
       subtext: "Open to freelance projects, collaborations, and opportunities in automation & AI."
@@ -2808,6 +2917,51 @@
 
         skillsList.appendChild(row);
       });
+    }
+
+    // Testimonials — hide entire section if empty
+    const tSection = document.getElementById('testimonials');
+    const tGrid    = document.getElementById('testimonialsGrid');
+    const testimonials = Array.isArray(content.testimonials)
+      ? content.testimonials.filter(t => t && (t.quote || '').trim().length > 0)
+      : [];
+    if (tSection && tGrid){
+      tGrid.innerHTML = '';
+      if (testimonials.length === 0){
+        tSection.hidden = true;
+      } else {
+        tSection.hidden = false;
+        testimonials.forEach(t => {
+          const card = document.createElement('div');
+          card.className = 'testimonial-card';
+
+          const qmark = document.createElement('span');
+          qmark.className = 'testimonial-quote-mark';
+          qmark.textContent = '“';
+          card.appendChild(qmark);
+
+          const quote = document.createElement('p');
+          quote.className = 'testimonial-quote';
+          quote.textContent = t.quote || '';
+          card.appendChild(quote);
+
+          const divider = document.createElement('div');
+          divider.className = 'testimonial-divider';
+          card.appendChild(divider);
+
+          const name = document.createElement('span');
+          name.className = 'testimonial-name';
+          name.textContent = t.name || '';
+          card.appendChild(name);
+
+          const role = document.createElement('span');
+          role.className = 'testimonial-role';
+          role.textContent = t.role || '';
+          card.appendChild(role);
+
+          tGrid.appendChild(card);
+        });
+      }
     }
 
     // Contact
@@ -3327,6 +3481,9 @@
     // Projects (dynamic list)
     renderAdminProjects(c.projects || []);
 
+    // Testimonials (dynamic list)
+    renderAdminTestimonials(c.testimonials || []);
+
     // Skills
     (c.skills || []).forEach((s, idx) => {
       const i = idx + 1;
@@ -3355,6 +3512,14 @@
       process: (p.process || '').trim(),
       link: (p.link || '').trim() || '#'
     })).filter(p => p.name.length > 0 || p.problem.length > 0); // drop fully-empty cards
+
+    // Pull latest values from the dynamic testimonials form fields
+    syncAdminTestimonialsFromForm();
+    const testimonials = adminTestimonials.map(t => ({
+      name:  (t.name  || '').trim(),
+      role:  (t.role  || '').trim(),
+      quote: (t.quote || '').trim()
+    })).filter(t => t.quote.length > 0); // need at least a quote to show the card
 
     const skills = [];
     for (let i = 1; i <= 4; i++){
@@ -3391,6 +3556,7 @@
       },
       projects: projects,
       skills: skills,
+      testimonials: testimonials,
       contact: {
         heading: val('admContactHeading').trim(),
         subtext: val('admContactSubtext').trim()
@@ -3438,6 +3604,95 @@
   // Dynamic "Add Project" button
   const addProjectBtn = document.getElementById('admAddProjectBtn');
   if (addProjectBtn) addProjectBtn.addEventListener('click', addAdminProject);
+
+  // ============================================================
+  // DYNAMIC ADMIN TESTIMONIALS LIST
+  // ============================================================
+  let adminTestimonials = [];
+
+  function emptyTestimonial(){
+    return { name: '', role: '', quote: '' };
+  }
+
+  function renderAdminTestimonials(testimonials){
+    adminTestimonials = (testimonials || []).map(t => ({
+      name: t.name || '',
+      role: t.role || '',
+      quote: t.quote || ''
+    }));
+
+    const list = document.getElementById('admTestimonialsList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (adminTestimonials.length === 0){
+      const empty = document.createElement('p');
+      empty.className = 'admin-project-empty';
+      empty.textContent = 'No testimonials yet. Click "+ Add Testimonial" to add your first one.';
+      list.appendChild(empty);
+      return;
+    }
+
+    adminTestimonials.forEach((t, idx) => {
+      const card = document.createElement('div');
+      card.className = 'admin-project-card';
+      card.dataset.index = String(idx);
+
+      const title = document.createElement('span');
+      title.className = 'admin-project-title';
+      title.textContent = (t.name && t.name.trim())
+        ? `Testimonial #${idx + 1} — ${t.name}`
+        : `Testimonial #${idx + 1}`;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'admin-remove-btn';
+      removeBtn.textContent = '✕';
+      removeBtn.title = 'Remove this testimonial';
+      removeBtn.addEventListener('click', () => removeAdminTestimonial(idx));
+
+      const header = document.createElement('div');
+      header.className = 'admin-project-header';
+      header.appendChild(title);
+      header.appendChild(removeBtn);
+      card.appendChild(header);
+
+      card.appendChild(makeField('text',     `admT${idx}Name`,  'Name',         t.name));
+      card.appendChild(makeField('text',     `admT${idx}Role`,  'Role / Company', t.role));
+      card.appendChild(makeField('textarea', `admT${idx}Quote`, 'Quote',        t.quote));
+
+      list.appendChild(card);
+    });
+  }
+
+  function addAdminTestimonial(){
+    syncAdminTestimonialsFromForm();
+    adminTestimonials.push(emptyTestimonial());
+    renderAdminTestimonials(adminTestimonials);
+  }
+
+  function removeAdminTestimonial(idx){
+    syncAdminTestimonialsFromForm();
+    adminTestimonials.splice(idx, 1);
+    renderAdminTestimonials(adminTestimonials);
+  }
+
+  function syncAdminTestimonialsFromForm(){
+    adminTestimonials.forEach((_, idx) => {
+      const nameEl  = document.getElementById(`admT${idx}Name`);
+      const roleEl  = document.getElementById(`admT${idx}Role`);
+      const quoteEl = document.getElementById(`admT${idx}Quote`);
+      if (!nameEl) return;
+      adminTestimonials[idx] = {
+        name:  nameEl  ? nameEl.value  : '',
+        role:  roleEl  ? roleEl.value  : '',
+        quote: quoteEl ? quoteEl.value : ''
+      };
+    });
+  }
+
+  const addTestimonialBtn = document.getElementById('admAddTestimonialBtn');
+  if (addTestimonialBtn) addTestimonialBtn.addEventListener('click', addAdminTestimonial);
 
   // ============================================================
   // PROFILE PHOTO UPLOAD (Admin)
